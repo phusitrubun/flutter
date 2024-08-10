@@ -62,6 +62,9 @@ flutter:
   assets:
       - assets/images/wallpaper_lotto3.png
       - assets/images/logo_lotto.png
+      - assets/images/banner1.png
+      - assets/images/g1.png
+      - assets/images/g2.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
