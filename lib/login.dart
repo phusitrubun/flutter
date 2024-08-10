@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/register.dart';
+import 'package:flutter_application_1/reward.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -123,7 +124,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: InkWell(
                       onTap: () {
-                        // Handle login logic
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MenuPage(),
+                          ),
+                        );
                       },
                       borderRadius: BorderRadius.circular(8.0),
                       child: SizedBox(
