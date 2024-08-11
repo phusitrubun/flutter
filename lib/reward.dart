@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/lottolist.dart';
+import 'wallet.dart'; // Import the Wallet page
 
 class MenuPage extends StatefulWidget {
   const MenuPage({Key? key}) : super(key: key);
@@ -8,6 +10,27 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Wallet()),
+      );
+    }
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Lottolist()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +56,30 @@ class _MenuPageState extends State<MenuPage> {
         child: SafeArea(
           child: Column(
             children: [
-              Image.asset('assets/images/banner1.png'),
+              const SizedBox(height: 30),
+              // Header with logo and user greeting
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset(
+                      'assets/images/logo_lotto.png',
+                      height: 40,
+                    ),
+                    const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Image.asset(
+                'assets/images/banner1.png',
+              ),
+              // const SizedBox(height: 10),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(12),
@@ -73,10 +119,15 @@ class _MenuPageState extends State<MenuPage> {
         unselectedItemColor: Colors.yellow[200],
         selectedFontSize: 12,
         unselectedFontSize: 10,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'รางวัล'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star),
+            label: 'รางวัล',
+          ),
           BottomNavigationBarItem(
               icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
         ],
@@ -88,20 +139,19 @@ class _MenuPageState extends State<MenuPage> {
     return Stack(
       children: [
         Positioned(
-          top: -15, // ปรับตำแหน่งตามต้องการ
-          left: 0, // ปรับตำแหน่งตามต้องการ
+          top: -15,
+          left: 0,
           right: 0,
           child: Image.asset(
-            'assets/images/g1.png', // รูปภาพพื้นหลังเดิม
+            'assets/images/g1.png',
             fit: BoxFit.cover,
           ),
         ),
         Container(
-          padding: const EdgeInsets.all(40), // ลด padding ลง
+          padding: const EdgeInsets.all(20),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.red[900]!
-                  .withOpacity(0.7), // ปรับความโปร่งแสงให้ชัดเจนขึ้น
+              color: Colors.red[900]!.withOpacity(0.7),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.yellow[700]!, width: 2),
             ),
@@ -109,8 +159,7 @@ class _MenuPageState extends State<MenuPage> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 4), // ลด padding ลง
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.red[700]!.withOpacity(0.7),
                     borderRadius:
@@ -120,20 +169,21 @@ class _MenuPageState extends State<MenuPage> {
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14, // ลดขนาดฟอนต์ลง
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(10), // ลด padding ลง
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
                       Text(
                         number,
                         style: TextStyle(
                           color: Colors.yellow[300],
-                          fontSize: 28, // ลดขนาดฟอนต์ลง
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -141,8 +191,9 @@ class _MenuPageState extends State<MenuPage> {
                       Text(
                         description,
                         style: TextStyle(
-                            color: Colors.yellow[100],
-                            fontSize: 10), // ลดขนาดฟอนต์ลง
+                          color: Colors.yellow[100],
+                          fontSize: 10,
+                        ),
                       ),
                     ],
                   ),
@@ -152,12 +203,12 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ),
         Positioned(
-          top: 90, // ปรับตำแหน่งตามต้องการ
-          left: 0, // ปรับตำแหน่งตามต้องการ
-          right: 0, // ปรับตำแหน่งตามต้องการ
+          top: 60,
+          left: 0,
+          right: 0,
           child: Image.asset(
-            'assets/images/g2.png', // รูปภาพใหม่ที่อยู่ด้านบนสุด
-            fit: BoxFit.contain, // ปรับตามต้องการ
+            'assets/images/g2.png',
+            fit: BoxFit.contain,
           ),
         ),
       ],
@@ -176,7 +227,7 @@ class _MenuPageState extends State<MenuPage> {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8), // Reduced padding
+            padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
               color: Colors.red[700]!.withOpacity(0.8),
               borderRadius:
@@ -186,20 +237,21 @@ class _MenuPageState extends State<MenuPage> {
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Color.fromARGB(255, 235, 190, 8),
-                  fontSize: 12, // Reduced font size
-                  fontWeight: FontWeight.bold),
+                color: Color.fromARGB(255, 235, 190, 8),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8), // Reduced padding
+            padding: const EdgeInsets.all(8),
             child: Column(
               children: [
                 Text(
                   number,
                   style: TextStyle(
                     color: Color.fromARGB(255, 255, 255, 255),
-                    fontSize: 20, // Reduced font size
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -207,8 +259,9 @@ class _MenuPageState extends State<MenuPage> {
                 Text(
                   description,
                   style: TextStyle(
-                      color: Color.fromARGB(255, 255, 229, 59),
-                      fontSize: 8), // Reduced font size
+                    color: Color.fromARGB(255, 255, 229, 59),
+                    fontSize: 8,
+                  ),
                 ),
               ],
             ),
