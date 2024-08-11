@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
+import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/reward.dart';
 
 class Wallet extends StatefulWidget {
@@ -62,10 +63,21 @@ class _WalletState extends State<Wallet> {
                     'assets/images/logo_lotto.png',
                     height: 40,
                   ),
-                  Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 30,
+                  GestureDetector(
+                    onTap: () {
+                      print('Profile icon tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Profile(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                 ],
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
 
@@ -60,10 +61,21 @@ class _LottolistState extends State<Lottolist> {
                     'assets/images/logo_lotto.png',
                     height: 40,
                   ),
-                  Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 30,
+                  GestureDetector(
+                    onTap: () {
+                      print('Profile icon tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Profile(),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                 ],
               ),

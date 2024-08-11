@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
+import 'package:flutter_application_1/profile.dart';
 import 'wallet.dart'; // Import the Wallet page
 
 class MenuPage extends StatefulWidget {
@@ -56,7 +57,7 @@ class _MenuPageState extends State<MenuPage> {
         child: SafeArea(
           child: Column(
             children: [
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               // Header with logo and user greeting
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -67,10 +68,21 @@ class _MenuPageState extends State<MenuPage> {
                       'assets/images/logo_lotto.png',
                       height: 40,
                     ),
-                    const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 30,
+                    GestureDetector(
+                      onTap: () {
+                        print('Profile icon tapped');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Profile(),
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ],
                 ),
