@@ -15,6 +15,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity, // Ensures the container takes full width
         decoration: BoxDecoration(
           color: Color(0xFF5B1E1E),
           image: DecorationImage(
@@ -34,8 +35,12 @@ class _ProfileState extends State<Profile> {
                 height: 40,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Image.asset(
+                    'assets/images/logo_lotto.png',
+                    height: 40,
+                  ),
                   Icon(
                     Icons.person,
                     color: Colors.white,
@@ -44,11 +49,13 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
               const SizedBox(height: 20),
-              // User Details Card
+              // First Card: User Details
               Container(
+                width:
+                    double.infinity, // Ensures the container takes full width
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: Color.fromARGB(255, 130, 36, 36),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.yellow[700]!, width: 2),
                   boxShadow: [
@@ -95,7 +102,30 @@ class _ProfileState extends State<Profile> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Second Card: Balance
+              Container(
+                width:
+                    double.infinity, // Ensures the container takes full width
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 130, 36, 36),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.yellow[700]!, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
                       'ยอดเงินคงเหลือ',
                       style: TextStyle(
@@ -116,22 +146,38 @@ class _ProfileState extends State<Profile> {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Logout function or action
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[700], // background color
-                  foregroundColor: Colors.white, // text color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // Logout Button with Gradient
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFB81A1B),
+                      Color(0xFFE3BB66),
+                      Color(0xFFB81A1B),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  'ออกจากระบบ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Implement the logout functionality
+                    print("Logged out");
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 40),
+                  ),
+                  child: Text(
+                    'ออกจากระบบ',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -155,17 +201,17 @@ class _ProfileState extends State<Profile> {
         onTap: (index) {
           // Navigate to other pages based on the selected index
           if (index == 0) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const Lottolist()),
             );
           } else if (index == 1) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const MenuPage()),
             );
           } else if (index == 2) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const Wallet()),
             );

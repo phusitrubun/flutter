@@ -79,7 +79,11 @@ class _LottolistState extends State<Lottolist> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+
+              Image.asset(
+                'assets/images/banner1.png',
+              ),
+              const SizedBox(height: 10),
               Text(
                 'เลือกซื้อเลขที่ถูกใจ',
                 style: TextStyle(
@@ -88,7 +92,7 @@ class _LottolistState extends State<Lottolist> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 30),
+
               // Lotto numbers cards
               Expanded(
                 child: ListView(
