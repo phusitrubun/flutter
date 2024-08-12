@@ -1,6 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/config/config.dart';
+import 'package:flutter_application_1/models/request/userLoginPostRequest.dart';
+import 'package:flutter_application_1/models/response/userLoginPostReaponse.dart';
 import 'package:flutter_application_1/register.dart';
 import 'package:flutter_application_1/reward.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,6 +18,16 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  String url = '';
+  @override
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then(
+      (config) {
+        url = config['apiEndpoint'];
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +35,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF7A0000),
-          image: const DecorationImage(
+        decoration: const BoxDecoration(
+          color: Color(0xFF7A0000),
+          image: DecorationImage(
             image: AssetImage('assets/images/wallpaper_lotto3.png'),
             fit: BoxFit.cover,
             repeat: ImageRepeat.repeat,
@@ -59,12 +75,12 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             child: TextField(
                               controller: _usernameController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'ชื่อผู้ใช้',
                                 border: OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(8.0)),
-                                  borderSide: const BorderSide(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  borderSide: BorderSide(
                                     color: Colors.grey,
                                     width: 1.0,
                                   ),
@@ -85,12 +101,12 @@ class _LoginPageState extends State<LoginPage> {
                             child: TextField(
                               controller: _passwordController,
                               obscureText: true,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'รหัสผ่าน',
                                 border: OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(8.0)),
-                                  borderSide: const BorderSide(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  borderSide: BorderSide(
                                     color: Colors.grey,
                                     width: 1.0,
                                   ),
@@ -123,14 +139,8 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MenuPage(),
-                          ),
-                        );
-                      },
+                      onTap: () => loginProcess(
+                          context, _usernameController, _passwordController),
                       borderRadius: BorderRadius.circular(8.0),
                       child: SizedBox(
                         width:
@@ -186,13 +196,12 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.symmetric(
                             vertical: 16.0,
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.person_add,
-                                  color: Color(0xFF90191B)),
-                              const SizedBox(width: 8.0),
-                              const Text(
+                              Icon(Icons.person_add, color: Color(0xFF90191B)),
+                              SizedBox(width: 8.0),
+                              Text(
                                 'สมัครสมาชิก',
                                 style: TextStyle(
                                   fontSize: 16.0,
@@ -212,6 +221,135 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void loginProcess(
+      BuildContext context,
+      TextEditingController usernameController,
+      TextEditingController passwordController) async {
+    String email = usernameController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.of(context).pop(); // Close dialog after 2 seconds
+            });
+
+            return AlertDialog(
+              title: Text(
+                "เข้าสู่ระบบไม่สำเร็จ",
+                style: TextStyle(
+                  color: Colors.red[800],
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              icon: Icon(
+                Icons.error_outline_outlined,
+                color: Colors.red[800],
+                size: 70,
+              ),
+              content: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Text("โปรดกรอกข้อมูลให้ครบถ้วน"),
+                ],
+              ),
+            );
+          });
+      return; // Exit the function if fields are empty
+    }
+
+    UserLoginPostReqest reqLogin = UserLoginPostReqest(
+      email: email,
+      password: password,
+    );
+
+    try {
+      final response = await http.post(
+        Uri.parse("$url/login"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: userLoginPostReqestToJson(reqLogin),
+      );
+
+      log(response.body);
+      UserLoginPostResponse responseLogin =
+          userLoginPostResponseFromJson(response.body);
+
+      if (responseLogin != null &&
+          responseLogin.message == "login successful") {
+        log(responseLogin.user.username);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MenuPage(),
+                ),
+              );
+            });
+
+            return AlertDialog(
+              title: Text(
+                "เข้าสู่ระบบสำเร็จ",
+                style: TextStyle(
+                  color: Colors.green[800],
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              icon: Icon(
+                Icons.check_circle_outline_rounded,
+                color: Colors.green[800],
+                size: 70,
+              ),
+            );
+          },
+        );
+      } 
+    } catch (error) {
+      log("Error: $error");
+      showErrorDialog(
+          context, "เข้าสู่ระบบไม่สำเร็จ", "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+    }
+  }
+
+  void showErrorDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.of(context).pop(); 
+        });
+
+        return AlertDialog(
+          title: Text(
+            title,
+            style: TextStyle(
+              color: Colors.red[800],
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          icon: Icon(
+            Icons.error_outline_outlined,
+            color: Colors.red[800],
+            size: 70,
+          ),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(content),
+            ],
+          ),
+        );
+      },
     );
   }
 }
