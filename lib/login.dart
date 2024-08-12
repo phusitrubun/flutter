@@ -312,10 +312,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           },
         );
-      } else {
-        showErrorDialog(
-            context, "เข้าสู่ระบบไม่สำเร็จ", "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      }
+      } 
     } catch (error) {
       log("Error: $error");
       showErrorDialog(
@@ -355,87 +352,4 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
-
-//   void LoginProcess(TextEditingController usernameController,
-//       TextEditingController passwordController) async {
-//     UserLoginPostReqest reqLogin = UserLoginPostReqest(
-//       email: _usernameController.text,
-//       password: _passwordController.text,
-//     );
-//     if(reqLogin.email.isNotEmpty&&reqLogin.password.isNotEmpty)
-//     {
-//       http
-//         .post(Uri.parse("$url/login"),
-//             headers: {"Content-Type": "application/json; charset=utf-8"},
-//             body: userLoginPostReqestToJson(reqLogin))
-//         .then((Value) {
-//       log(Value.body);
-//       UserLoginPostResponse responseLogin =
-//           userLoginPostResponseFromJson(Value.body);
-//       if (responseLogin != null) {
-//         if (responseLogin.message == "login successful") {
-//           log(responseLogin.user.username);
-//           showDialog(
-//               context: context,
-//               builder: (BuildContext context) {
-//                 Future.delayed(Duration(seconds: 2), () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const MenuPage(),
-//                     ),
-//                   );
-//                 });
-
-//                 return AlertDialog(
-//                   title: Text(
-//                     "เข้าสู่ระบบสำเร็จ",
-//                     style: TextStyle(
-//                         color: Colors.green[800],
-//                         fontSize: 26,
-//                         fontWeight: FontWeight.bold,
-//                          ),
-//                   ),
-//                   icon: Icon(
-//                     Icons.check_circle_outline_rounded,
-//                     color: Colors.green[800],
-//                     size: 70,
-//                     weight: BorderSide.strokeAlignOutside,
-//                   ),
-//                 );
-//               });
-//         }
-//     }
-//     else if(reqLogin.email ==" "&&reqLogin.password==" "){
-//         showDialog(
-//               context: context,
-//               builder: (BuildContext context) {
-//                 Future.delayed(Duration(seconds: 2), () {
-
-//                 });
-
-//                 return AlertDialog(
-//                   title: Text(
-//                     "เข้าสู่ระบบไม่สำเร็จ",
-//                     style: TextStyle(
-//                         color: Colors.red[800],
-//                         fontSize: 26,
-//                         fontWeight: FontWeight.bold,
-//                          ),
-//                   ),
-//                   icon: Icon(
-//                     Icons.error_outline_outlined,
-//                     color: Colors.red[800],
-//                     size: 70,
-//                     weight: BorderSide.strokeAlignOutside,
-//                   ),
-//                   content: Text("โปรดกรอกข้อมูลให้ครบถ้วน"),
-//                 );
-//               });
-
-//     }
-//     }
-//     );
-//   }
-// }
 }
