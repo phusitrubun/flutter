@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/login.dart';
 import 'package:flutter_application_1/lottolist.dart';
 import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
@@ -162,8 +163,12 @@ class _ProfileState extends State<Profile> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Implement the logout functionality
-                    print("Logged out");
+                   Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginPage(),
+            ),
+          );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,

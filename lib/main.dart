@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: const Color(0xFF7A0000),
             image: const DecorationImage(
               image: AssetImage('assets/images/wallpaper_lotto3.png'),
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
               repeat: ImageRepeat.repeat,
             ),
           ),
-          child: const Mainlotto(),
+          child: Mainlotto(),
         ),
       ),
     );
