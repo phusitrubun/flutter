@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
+import 'package:http/http.dart' as http;
 
 class Lottolist extends StatefulWidget {
   const Lottolist({Key? key}) : super(key: key);
@@ -12,6 +14,16 @@ class Lottolist extends StatefulWidget {
 
 class _LottolistState extends State<Lottolist> {
   int _selectedIndex = 0;
+  String url = '';
+  @override
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then(
+      (config) {
+        url = config['apiEndpoint'];
+      },
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -98,11 +110,11 @@ class _LottolistState extends State<Lottolist> {
                 child: ListView(
                   children: [
                     _buildLottoCard('647853', 'lotto 8'),
-                    _buildLottoCard('463770', 'lotto 12'),
-                    _buildLottoCard('358795', 'lotto 18'),
-                    _buildLottoCard('546783', 'lotto 24'),
-                    _buildLottoCard('139075', 'lotto 36'),
-                    _buildLottoCard('953452', 'lotto 39'),
+                    // _buildLottoCard('463770', 'lotto 12'),
+                    // _buildLottoCard('358795', 'lotto 18'),
+                    // _buildLottoCard('546783', 'lotto 24'),
+                    // _buildLottoCard('139075', 'lotto 36'),
+                    // _buildLottoCard('953452', 'lotto 39'),
                   ],
                 ),
               ),
@@ -167,5 +179,9 @@ class _LottolistState extends State<Lottolist> {
         ],
       ),
     );
+  }
+
+  void getAllLottery() async {
+    final response = await http.get(Uri.parse("$url/getAllLottery"));
   }
 }
