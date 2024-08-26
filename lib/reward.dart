@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
 import 'package:flutter_application_1/profile.dart';
@@ -6,7 +8,7 @@ import 'wallet.dart'; // Import the Wallet page
 class MenuPage extends StatefulWidget {
   int idx = 0;
   MenuPage({super.key, required this.idx});
-
+  
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
@@ -18,7 +20,6 @@ class _MenuPageState extends State<MenuPage> {
     setState(() {
       _selectedIndex = index;
     });
-
     if (index == 2) {
       Navigator.push(
         context,
