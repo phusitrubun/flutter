@@ -4,7 +4,8 @@ import 'package:flutter_application_1/profile.dart';
 import 'wallet.dart'; // Import the Wallet page
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({Key? key}) : super(key: key);
+  int idx = 0;
+  MenuPage({super.key, required this.idx});
 
   @override
   State<MenuPage> createState() => _MenuPageState();
@@ -21,13 +22,13 @@ class _MenuPageState extends State<MenuPage> {
     if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Wallet()),
+        MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
       );
     }
     if (index == 0) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Lottolist()),
+        MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
       );
     }
   }
@@ -74,11 +75,11 @@ class _MenuPageState extends State<MenuPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Profile(),
+                            builder: (context) => Profile(idx: widget.idx),
                           ),
                         );
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.person,
                         color: Colors.white,
                         size: 30,

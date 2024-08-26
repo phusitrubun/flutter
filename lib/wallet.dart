@@ -4,7 +4,8 @@ import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/reward.dart';
 
 class Wallet extends StatefulWidget {
-  const Wallet({Key? key}) : super(key: key);
+  int idx = 0;
+  Wallet({super.key, required this.idx});
 
   @override
   State<Wallet> createState() => _WalletState();
@@ -21,13 +22,13 @@ class _WalletState extends State<Wallet> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
+        MaterialPageRoute(builder: (context) => MenuPage(idx: widget.idx)),
       );
     }
     if (index == 0) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Lottolist()),
+        MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
       );
     }
   }
@@ -69,7 +70,7 @@ class _WalletState extends State<Wallet> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Profile(),
+                          builder: (context) =>  Profile(idx:widget.idx),
                         ),
                       );
                     },
@@ -98,7 +99,7 @@ class _WalletState extends State<Wallet> {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(

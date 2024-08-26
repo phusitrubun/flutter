@@ -5,7 +5,8 @@ import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  int idx = 0;
+  Profile({super.key, required this.idx});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -208,17 +209,17 @@ class _ProfileState extends State<Profile> {
           if (index == 0) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Lottolist()),
+              MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
             );
           } else if (index == 1) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const MenuPage()),
+              MaterialPageRoute(builder: (context) =>  MenuPage(idx:widget.idx)),
             );
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Wallet()),
+              MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
             );
           }
         },
