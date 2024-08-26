@@ -4,7 +4,8 @@ import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
 
 class Lottolist extends StatefulWidget {
-  const Lottolist({Key? key}) : super(key: key);
+  int idx = 0;
+  Lottolist({super.key, required this.idx});
 
   @override
   State<Lottolist> createState() => _LottolistState();
@@ -21,13 +22,13 @@ class _LottolistState extends State<Lottolist> {
     if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const Wallet()),
+        MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
       );
     }
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MenuPage()),
+        MaterialPageRoute(builder: (context) =>  MenuPage(idx:widget.idx)),
       );
     }
   }
@@ -67,7 +68,7 @@ class _LottolistState extends State<Lottolist> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Profile(),
+                          builder: (context) =>  Profile(idx:widget.idx),
                         ),
                       );
                     },

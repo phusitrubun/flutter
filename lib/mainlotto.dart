@@ -10,8 +10,8 @@ class Mainlotto extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF7A0000),
+        decoration: const BoxDecoration(
+          color:  Color(0xFF7A0000),
           image: DecorationImage(
             image: AssetImage('assets/images/wallpaper_lotto3.png'),
             fit: BoxFit.cover,
@@ -29,7 +29,7 @@ class Mainlotto extends StatelessWidget {
                     child: Container(
                       width: 200,
                       height: 200,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         image: DecorationImage(
                           image: AssetImage('assets/images/logo_lotto.png'),
                           fit: BoxFit.contain,
