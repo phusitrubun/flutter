@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer'; // Import the log package
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/models/response/AllLotteryGetResponse.dart';
@@ -66,8 +66,7 @@ class _LottolistState extends State<Lottolist> {
           try {
             List<AllLotteryGetResponse> allLotteries =
                 allLotteryGetResponseFromJson(response.body);
-            lotteries =
-                allLotteries.take(100).toList(); // จำกัดให้เหลือแค่ 100 รายการ
+            lotteries = allLotteries.take(100).toList();
             log('Parsed lotteries: ${lotteries.length} items');
             for (var lottery in lotteries) {
               log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}');
@@ -189,7 +188,7 @@ class _LottolistState extends State<Lottolist> {
 
   Widget _buildLottoCard(String number, String lottoType) {
     return GestureDetector(
-      onTap: () => _showLottoDialog(number),
+      onTap: () => _showLottoDialog(number, lottoType.split(' ')[1]),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         margin: const EdgeInsets.only(bottom: 10),
@@ -230,7 +229,7 @@ class _LottolistState extends State<Lottolist> {
     );
   }
 
-  void _showLottoDialog(String number) {
+  void _showLottoDialog(String number, String lid) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -277,8 +276,31 @@ class _LottolistState extends State<Lottolist> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
+                      onPressed: () async {
+                        try {
+                          final response = await http.post(
+                            Uri.parse('$url/BuyLotterys'),
+                            headers: {'Content-Type': 'application/json'},
+                            body: jsonEncode({
+                              "lid": lid,
+                              "uid": widget.idx.toString(),
+                            }),
+                          );
+
+                          if (response.statusCode == 200) {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('ซื้อล็อตเตอรี่สำเร็จ')),
+                            );
+                            // อาจจะเพิ่มการอัปเดตข้อมูลหรือรีเฟรชหน้าจอตรงนี้
+                          } else {
+                            throw Exception('Failed to buy lottery');
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                          );
+                        }
                       },
                       child: Text('ยืนยัน'),
                       style: ElevatedButton.styleFrom(

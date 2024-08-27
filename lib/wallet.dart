@@ -28,7 +28,7 @@ class _WalletState extends State<Wallet> {
     if (index == 0) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
+        MaterialPageRoute(builder: (context) => Lottolist(idx: widget.idx)),
       );
     }
   }
@@ -70,7 +70,7 @@ class _WalletState extends State<Wallet> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>  Profile(idx:widget.idx),
+                          builder: (context) => Profile(idx: widget.idx),
                         ),
                       );
                     },
