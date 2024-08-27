@@ -253,7 +253,7 @@ class _ProfileState extends State<Profile> {
   Future<void> loadDataAsync() async {
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
-    var response = await http.get(Uri.parse('$url/api/User/${widget.idx}'));
+    var response = await http.get(Uri.parse('$url/getByID/${widget.idx}'));
     profileRes=profileGetResponseFromJson(response.body);
     log(json.encode(profileRes.toJson()));
   }
