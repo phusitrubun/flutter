@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/admin.dart';
 import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/models/request/userLoginPostRequest.dart';
 import 'package:flutter_application_1/models/response/userLoginPostReaponse.dart';
@@ -256,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
               content: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Text("โปรดกรอกข้อมูลให้ครบถ้วน"),
+                  Text("โปรดกรอกข้อมูลให้ครบถ้วน"),
                 ],
               ),
             );
@@ -282,37 +283,70 @@ class _LoginPageState extends State<LoginPage> {
 
       if (responseLogin != null &&
           responseLogin.message == "login successful") {
-        log(responseLogin.user.username);
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            Future.delayed(Duration(seconds: 2), () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>  MenuPage(idx:responseLogin.user.uid),
+        if (responseLogin.user.tid == 2) {
+          log(responseLogin.user.username);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MenuPage(idx: responseLogin.user.uid),
+                  ),
+                );
+              });
+
+              return AlertDialog(
+                title: Text(
+                  "เข้าสู่ระบบสำเร็จ",
+                  style: TextStyle(
+                    color: Colors.green[800],
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                icon: Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: Colors.green[800],
+                  size: 70,
                 ),
               );
-            });
+            },
+          );
+        } else if (responseLogin.user.tid == 1) {
+          log(responseLogin.user.username);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Admin(idx: responseLogin.user.uid),
+                  ),
+                );
+              });
 
-            return AlertDialog(
-              title: Text(
-                "เข้าสู่ระบบสำเร็จ",
-                style: TextStyle(
-                  color: Colors.green[800],
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
+              return AlertDialog(
+                title: Text(
+                  "เข้าสู่ระบบสำเร็จ",
+                  style: TextStyle(
+                    color: Colors.green[800],
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              icon: Icon(
-                Icons.check_circle_outline_rounded,
-                color: Colors.green[800],
-                size: 70,
-              ),
-            );
-          },
-        );
-      } 
+                icon: Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: Colors.green[800],
+                  size: 70,
+                ),
+              );
+            },
+          );
+        }
+      }
     } catch (error) {
       log("Error: $error");
       showErrorDialog(
@@ -325,7 +359,7 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (BuildContext context) {
         Future.delayed(Duration(seconds: 2), () {
-          Navigator.of(context).pop(); 
+          Navigator.of(context).pop();
         });
 
         return AlertDialog(

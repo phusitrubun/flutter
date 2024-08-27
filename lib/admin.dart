@@ -1,13 +1,32 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/config/config.dart';
+import 'package:flutter_application_1/models/response/lotteriesOwnAndOnStoreGetResponse.dart';
+
+import 'package:http/http.dart' as http;
 
 class Admin extends StatefulWidget {
-  const Admin({super.key});
+  int idx = 0;
+  Admin({super.key, required this.idx});
 
   @override
   State<Admin> createState() => _AdminState();
 }
 
 class _AdminState extends State<Admin> {
+  String url = "";
+  late LotteriesIOwnAndOnStoreGetResponse lotteriesFound;
+  late Future<void> loadData;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadData = getLotteryOnStore();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,9 +93,7 @@ class _AdminState extends State<Admin> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        // Action for "ลอตโต้ที่เหลือ"
-                      },
+                      onPressed: () => getLotteryOnStore(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7A0000),
                         padding: const EdgeInsets.symmetric(
@@ -92,9 +109,7 @@ class _AdminState extends State<Admin> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        // Action for "ขายแล้ว"
-                      },
+                      onPressed: () => getLotterieSoldOut(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7A0000),
                         padding: const EdgeInsets.symmetric(
@@ -113,54 +128,65 @@ class _AdminState extends State<Admin> {
                 ),
                 const SizedBox(height: 16),
                 // Lottery number list
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red[900]?.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: const Color(0xFFFFD700), width: 2),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: ListView.builder(
-                      itemCount: 7,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF7E7B0),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'lotto ${index + 1}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  generateRandomNumber(),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
+                FutureBuilder(
+                    future: loadData,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red[900]?.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: const Color(0xFFFFD700), width: 2),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                          padding: const EdgeInsets.all(16),
+                          child: ListView.builder(
+                            itemCount: lotteriesFound.lotteries.length,
+                            itemBuilder: (context, index) {
+                              final lotteries = lotteriesFound.lotteries[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF7E7B0),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'lotto ${lotteries.lid}',
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        lotteries.number.toString(),
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }),
               ],
             ),
           ),
@@ -184,14 +210,20 @@ class _AdminState extends State<Admin> {
     );
   }
 
-  String generateRandomNumber() {
-    // Generates a 7-digit number as a string to match the image
-    return (1000000 +
-            (9999999 - 1000000) *
-                (DateTime.now().microsecondsSinceEpoch % 10000000) ~/
-                10000000)
-        .toString();
+  Future<void> getLotteryOnStore() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndpoint'];
+    var response = await http.get(Uri.parse('$url/getLotteryOnStore'));
+    setState(() {
+      lotteriesFound = lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+      log(json.encode(lotteriesFound.toJson()));
+    });
+  }
+
+  getLotterieSoldOut() async {
+    var response = await http.get(Uri.parse('$url/getLotterySoldOwn'));
+    setState(() {
+      lotteriesFound = lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+    });
   }
 }
-
-void main() => runApp(const MaterialApp(home: Admin()));

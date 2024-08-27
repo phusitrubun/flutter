@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final userLoginPostResponse = userLoginPostResponseFromJson(jsonString);
+
 import 'dart:convert';
 
 UserLoginPostResponse userLoginPostResponseFromJson(String str) => UserLoginPostResponse.fromJson(json.decode(str));
@@ -28,7 +32,6 @@ class User {
     int uid;
     String username;
     String email;
-    String password;
     int tid;
     int wallet;
 
@@ -36,7 +39,6 @@ class User {
         required this.uid,
         required this.username,
         required this.email,
-        required this.password,
         required this.tid,
         required this.wallet,
     });
@@ -45,7 +47,6 @@ class User {
         uid: json["uid"],
         username: json["username"],
         email: json["email"],
-        password: json["password"],
         tid: json["tid"],
         wallet: json["wallet"],
     );
@@ -54,7 +55,6 @@ class User {
         "uid": uid,
         "username": username,
         "email": email,
-        "password": password,
         "tid": tid,
         "wallet": wallet,
     };
