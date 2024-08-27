@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
+import 'package:flutter_application_1/models/response/profileGetResponse.dart';
 import 'package:flutter_application_1/profile.dart';
 import 'package:flutter_application_1/reward.dart';
+import 'package:flutter_application_1/config/config.dart';
+import 'package:http/http.dart' as http;
 
 class Wallet extends StatefulWidget {
   int idx = 0;
@@ -12,7 +17,24 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
+  String url = '';
+  late ProfileGetResponse profileRes;
+  late Future<void> loadData;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData = loadDataAsync();
+  }
+
+  Future<void> loadDataAsync() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndpoint'];
+    var response = await http.get(Uri.parse('$url/getByID/${widget.idx}'));
+    profileRes = profileGetResponseFromJson(response.body);
+    log(json.encode(profileRes.toJson()));
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,6 +59,7 @@ class _WalletState extends State<Wallet> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           color: Color(0xFF5B1E1E),
           image: DecorationImage(
@@ -48,193 +71,188 @@ class _WalletState extends State<Wallet> {
             ),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 40,
-              ),
-              // Header with logo and user greeting
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: FutureBuilder(
+          future: loadData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    'assets/images/logo_lotto.png',
-                    height: 40,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      print('Profile icon tapped');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Profile(idx: widget.idx),
+                  SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        'assets/images/logo_lotto.png',
+                        height: 40,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Profile(idx: widget.idx)),
+                          );
+                        },
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 30,
                         ),
-                      );
-                    },
-                    child: Icon(
-                      Icons.person,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const RadialGradient(
+                        colors: [
+                          Color(0xFF7D6738),
+                          Color(0xFFA49869),
+                          Color(0xFFE6D9AC),
+                          Color.fromARGB(255, 234, 233, 235),
+                        ],
+                        center: Alignment.centerLeft,
+                        radius: 2.5,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'ยอดเงินทั้งหมด',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 88, 59, 39),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              profileRes.wallet.toString(),
+                              style: TextStyle(
+                                color: Color(0xFF3D1B0F),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'รายการที่ซื้อ',
+                    style: TextStyle(
                       color: Colors.white,
-                      size: 30,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red[800],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10)),
+                              color: Color(0xFFEDE6D5),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'รายการที่ซื้อ',
+                                  style: TextStyle(
+                                    color: Color(0xFF7D5538),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Implement check rewards functionality
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                  ),
+                                  child: Ink(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFE3BB66),
+                                          Color(0xFFB81A1B),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 25),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'เช็ครางวัล',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.all(10),
+                              itemCount:
+                                  0, // Adjust according to your data source
+                              itemBuilder: (context, index) {
+                                // Adjust according to your data source
+                                return _buildPurchaseItem(
+                                  'Number', // Replace with actual data
+                                  'lotto', // Replace with actual data
+                                  '-Price', // Replace with actual data
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              // Wallet Balance Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const RadialGradient(
-                    colors: [
-                      Color(0xFF7D6738),
-                      Color(0xFFA49869),
-                      Color(0xFFE6D9AC),
-                      Color.fromARGB(255, 234, 233, 235),
-                    ],
-                    center: Alignment.centerLeft,
-                    radius: 2.5,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'ยอดเงินทั้งหมด',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 88, 59, 39),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '7,200 ฿',
-                          style: TextStyle(
-                            color: Color(0xFF3D1B0F),
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'winning lotto +2,000',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Purchase History Header
-              Text(
-                'รายการที่ซื้อ',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Purchase History List
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red[800],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10)),
-                          color: Color(0xFFEDE6D5),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'รายการที่ซื้อ',
-                              style: TextStyle(
-                                color: Color(0xFF7D5538),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Define your action here
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding:
-                                    EdgeInsets.zero, // Remove default padding
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                backgroundColor: Colors
-                                    .transparent, // Make the button background transparent
-                                shadowColor:
-                                    Colors.transparent, // Remove the shadow
-                              ),
-                              child: Ink(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFE3BB66), // The yellowish color
-                                      Color(0xFFB81A1B), // The reddish color
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 25),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'เช็ครางวัล',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          padding: EdgeInsets.all(10),
-                          children: [
-                            _buildPurchaseItem('249531', 'lotto 53', '-200'),
-                            _buildPurchaseItem(
-                                '848322', 'lotto win 5', '+2,000'),
-                            _buildPurchaseItem('686345', 'lotto 21', '-200'),
-                            _buildPurchaseItem('299361', 'lotto 38', '-200'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -256,22 +274,14 @@ class _WalletState extends State<Wallet> {
     );
   }
 
-  Widget _buildPurchaseItem(String number, String lottoType, String winnings) {
+  Widget _buildPurchaseItem(String number, String lottoType, String price) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        gradient: const RadialGradient(
-          colors: [
-            Color(0xFFFDFCFF),
-            Color(0xFFE6D9AC),
-            Color(0xFFA49869),
-            Color(0xFF7D6738),
-          ],
-          center: Alignment.center,
-          radius: 2.5,
-        ),
-        borderRadius: BorderRadius.circular(8),
+        color: Color.fromARGB(255, 234, 233, 235),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.yellow[700]!, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -285,32 +295,26 @@ class _WalletState extends State<Wallet> {
         children: [
           Text(
             number,
-            style: TextStyle(
-              color: Colors.black,
+            style: const TextStyle(
+              color: Color(0xFF3D1B0F),
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                lottoType,
-                style: TextStyle(
-                  color: Color.fromARGB(255, 52, 42, 42),
-                  fontSize: 14,
-                ),
-              ),
-              if (winnings.isNotEmpty)
-                Text(
-                  winnings,
-                  style: TextStyle(
-                    color: winnings.startsWith('+') ? Colors.green : Colors.red,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-            ],
+          Text(
+            lottoType,
+            style: const TextStyle(
+              color: Color(0xFF3D1B0F),
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            '$price ฿',
+            style: const TextStyle(
+              color: Color(0xFF3D1B0F),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

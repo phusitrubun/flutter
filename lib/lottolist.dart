@@ -69,7 +69,7 @@ class _LottolistState extends State<Lottolist> {
             lotteries = allLotteries.take(100).toList();
             log('Parsed lotteries: ${lotteries.length} items');
             for (var lottery in lotteries) {
-              log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}');
+              log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}, Status: ${lottery.status}');
             }
           } catch (e) {
             log('Error parsing JSON: $e');
@@ -159,6 +159,7 @@ class _LottolistState extends State<Lottolist> {
                           return _buildLottoCard(
                             lotteries[index].number.toString(),
                             'lotto ${lotteries[index].lid}',
+                            lotteries[index].status == 1, // Check if sold
                           );
                         },
                       ),
@@ -186,153 +187,182 @@ class _LottolistState extends State<Lottolist> {
     );
   }
 
-  Widget _buildLottoCard(String number, String lottoType) {
-    return GestureDetector(
-      onTap: () => _showLottoDialog(number, lottoType.split(' ')[1]),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          gradient: const RadialGradient(
-            colors: [
-              Color.fromARGB(255, 234, 233, 235),
-              Color(0xFFE6D9AC),
-              Color(0xFFA49869),
-              Color(0xFF7D6738),
-            ],
-            center: Alignment.center,
-            radius: 2.5,
+  Widget _buildLottoCard(String number, String lottoType, bool isSold) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: isSold
+              ? null
+              : () => _showConfirmationDialog(number, lottoType.split(' ')[1]),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              gradient: const RadialGradient(
+                colors: [
+                  Color.fromARGB(255, 234, 233, 235),
+                  Color(0xFFE6D9AC),
+                  Color(0xFFA49869),
+                  Color(0xFF7D6738),
+                ],
+                center: Alignment.center,
+                radius: 2.5,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  lottoType,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  number,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              lottoType,
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+        if (isSold)
+          Positioned(
+            top: -5,
+            right: -5,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'ขายแล้ว',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Text(
-              number,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 
-  void _showLottoDialog(String number, String lid) {
-    showDialog(
+  Future<void> _showConfirmationDialog(String number, String lid) async {
+    return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          insetPadding: EdgeInsets.zero,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
+        return AlertDialog(
+          title: Center(
+            child: Text(
+              'ซื้อ lotto',
+              style: TextStyle(
+                color: Color.fromARGB(255, 227, 197, 2),
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  color: Color(0xFF5B1E1E),
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(color: Color(0xFFFFD700), width: 2),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'ซื้อ lotto',
-                      style: TextStyle(
-                        color: Color(0xFFFFD700),
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      number,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '100 บาท',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          final response = await http.post(
-                            Uri.parse('$url/BuyLotterys'),
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode({
-                              "lid": lid,
-                              "uid": widget.idx.toString(),
-                            }),
-                          );
-
-                          if (response.statusCode == 200) {
-                            Navigator.of(context).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('ซื้อล็อตเตอรี่สำเร็จ')),
-                            );
-                            // อาจจะเพิ่มการอัปเดตข้อมูลหรือรีเฟรชหน้าจอตรงนี้
-                          } else {
-                            throw Exception('Failed to buy lottery');
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
-                          );
-                        }
-                      },
-                      child: Text('ยืนยัน'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ],
+              Text(
+                number,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-              Positioned(
-                right: -10,
-                top: -10,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Colors.white,
-                    child:
-                        Icon(Icons.close, color: Color(0xFF5B1E1E), size: 18),
-                  ),
+              SizedBox(height: 10),
+              Text(
+                '100 บาท',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
                 ),
               ),
             ],
+          ),
+          actions: <Widget>[
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _buyLottery(lid, widget.idx);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(
+                      255, 255, 255, 255), // Background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30), // Rounded corners
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15), 
+                ),
+                child: Text(
+                  'ยืนยัน',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          backgroundColor: Color(0xFF5B1E1E), // Background color of the dialog
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(20), // Rounded corners for the dialog
           ),
         );
       },
     );
+  }
+
+  Future<void> _buyLottery(String lid, int uid) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$url/BuyLotterys'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "lid": lid,
+          "uid": uid,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ซื้อล็อตเตอรี่สำเร็จ')),
+        );
+        // รีเฟรชรายการล็อตเตอรี่
+        getAllLottery();
+      } else if (response.statusCode == 400) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ข้อมูลไม่ถูกต้อง กรุณาลองใหม่')),
+        );
+      } else if (response.statusCode == 403) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ยอดเงินไม่เพียงพอ')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
+        );
+      }
+    } catch (e) {
+      log('Error in buyLottery: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
+      );
+    }
   }
 }
