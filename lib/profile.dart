@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/login.dart';
 import 'package:flutter_application_1/lottolist.dart';
 import 'package:flutter_application_1/models/response/profileGetResponse.dart';
 import 'package:flutter_application_1/reward.dart';
+import 'package:flutter_application_1/shared/appData.dart';
 import 'package:flutter_application_1/wallet.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,6 +33,17 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red[900],
+        elevation: 0,
+        leading: IconButton(
+          icon:
+              Icon(Icons.arrow_back, color: Color.fromARGB(255, 255, 255, 255)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -175,11 +187,12 @@ class _ProfileState extends State<Profile> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
-                          ),
+                        context.read<AppData>().idx = 0;
+                        log(context.read<AppData>().idx.toString());
+
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          (Route<dynamic> route) => false,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -191,9 +204,10 @@ class _ProfileState extends State<Profile> {
                       child: Text(
                         'ออกจากระบบ',
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
