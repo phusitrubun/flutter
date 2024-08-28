@@ -60,20 +60,7 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: 40,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        'assets/images/logo_lotto.png',
-                        height: 40,
-                      ),
-                      Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ],
-                  ),
+
                   const SizedBox(height: 20),
                   // First Card: User Details
                   Container(
@@ -216,42 +203,6 @@ class _ProfileState extends State<Profile> {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red[900],
-        selectedItemColor: Colors.yellow[700],
-        unselectedItemColor: Colors.yellow[200],
-        selectedFontSize: 12,
-        unselectedFontSize: 10,
-        currentIndex: 2, // Assuming the Profile page is the third item
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'รางวัล'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
-        ],
-        onTap: (index) {
-          // Navigate to other pages based on the selected index
-          if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Lottolist(idx: widget.idx)),
-            );
-          } else if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => MenuPage(idx: widget.idx)),
-            );
-          } else if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Wallet(idx: widget.idx)),
-            );
-          }
-        },
-      ),
     );
   }
 
@@ -259,6 +210,7 @@ class _ProfileState extends State<Profile> {
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
     var response = await http.get(Uri.parse('$url/getByID/${widget.idx}'));
+    log(response.body);
     profileRes = profileGetResponseFromJson(response.body);
     log(json.encode(profileRes.toJson()));
   }

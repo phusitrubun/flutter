@@ -36,25 +36,6 @@ class _WalletState extends State<Wallet> {
     log(json.encode(profileRes.toJson()));
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MenuPage(idx: widget.idx)),
-      );
-    }
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Lottolist(idx: widget.idx)),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,29 +66,6 @@ class _WalletState extends State<Wallet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        'assets/images/logo_lotto.png',
-                        height: 40,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Profile(idx: widget.idx)),
-                          );
-                        },
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -255,22 +213,6 @@ class _WalletState extends State<Wallet> {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red[900],
-        selectedItemColor: Colors.yellow[700],
-        unselectedItemColor: Colors.yellow[200],
-        selectedFontSize: 12,
-        unselectedFontSize: 10,
-        onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'รางวัล'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
-        ],
-      ),
     );
   }
 
@@ -302,7 +244,7 @@ class _WalletState extends State<Wallet> {
             ),
           ),
           Text(
-            lottoType,
+            'lottoType',
             style: const TextStyle(
               color: Color(0xFF3D1B0F),
               fontSize: 14,
