@@ -8,31 +8,31 @@ import 'wallet.dart'; // Import the Wallet page
 class MenuPage extends StatefulWidget {
   int idx = 0;
   MenuPage({super.key, required this.idx});
-  
+
   @override
   State<MenuPage> createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
-  int _selectedIndex = 0;
+  // int _selectedIndex = 0;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
-      );
-    }
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
-      );
-    }
-  }
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  //   if (index == 2) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
+  //     );
+  //   }
+  //   if (index == 0) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -63,31 +63,6 @@ class _MenuPageState extends State<MenuPage> {
               // Header with logo and user greeting
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset(
-                      'assets/images/logo_lotto.png',
-                      height: 40,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        print('Profile icon tapped');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Profile(idx: widget.idx),
-                          ),
-                        );
-                      },
-                      child: const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 10),
               Image.asset(
@@ -127,25 +102,25 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red[900],
-        selectedItemColor: Colors.yellow[700],
-        unselectedItemColor: Colors.yellow[200],
-        selectedFontSize: 12,
-        unselectedFontSize: 10,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'รางวัล',
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: Colors.red[900],
+      //   selectedItemColor: Colors.yellow[700],
+      //   unselectedItemColor: Colors.yellow[200],
+      //   selectedFontSize: 12,
+      //   unselectedFontSize: 10,
+      //   currentIndex: _selectedIndex,
+      //   onTap: _onItemTapped,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.star),
+      //       label: 'รางวัล',
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
+      //   ],
+      // ),
     );
   }
 

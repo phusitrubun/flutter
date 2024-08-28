@@ -34,31 +34,12 @@ class _LottolistState extends State<Lottolist> {
     });
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Wallet(idx: widget.idx)),
-      );
-    }
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MenuPage(idx: widget.idx)),
-      );
-    }
-  }
-
   Future<void> getAllLottery() async {
-    log('Fetching lottery data from: $url/getAllLottery');
+    // log('Fetching lottery data from: $url/getAllLottery');
     final response = await http.get(Uri.parse("$url/getAllLottery"));
 
-    log('Response status code: ${response.statusCode}');
-    log('Response body: ${response.body}');
+    // log('Response status code: ${response.statusCode}');
+    // log('Response body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 202) {
       if (response.body.isNotEmpty) {
@@ -67,19 +48,19 @@ class _LottolistState extends State<Lottolist> {
             List<AllLotteryGetResponse> allLotteries =
                 allLotteryGetResponseFromJson(response.body);
             lotteries = allLotteries.take(100).toList();
-            log('Parsed lotteries: ${lotteries.length} items');
+            // log('Parsed lotteries: ${lotteries.length} items');
             for (var lottery in lotteries) {
-              log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}, Status: ${lottery.status}');
+              // log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}, Status: ${lottery.status}');
             }
           } catch (e) {
-            log('Error parsing JSON: $e');
+            // log('Error parsing JSON: $e');
           }
         });
       } else {
-        log('Response body is empty');
+        // log('Response body is empty');
       }
     } else {
-      log('Failed to load lottery data: ${response.statusCode}');
+      // log('Failed to load lottery data: ${response.statusCode}');
       throw Exception('Failed to load lottery data');
     }
   }
@@ -105,30 +86,6 @@ class _LottolistState extends State<Lottolist> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    'assets/images/logo_lotto.png',
-                    height: 40,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Profile(idx: widget.idx),
-                        ),
-                      );
-                    },
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ],
-              ),
               Image.asset(
                 'assets/images/banner1.png',
               ),
@@ -167,22 +124,6 @@ class _LottolistState extends State<Lottolist> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red[900],
-        selectedItemColor: Colors.yellow[700],
-        unselectedItemColor: Colors.yellow[200],
-        selectedFontSize: 12,
-        unselectedFontSize: 10,
-        onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'รางวัล'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
-        ],
       ),
     );
   }
@@ -304,9 +245,7 @@ class _LottolistState extends State<Lottolist> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15), 
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
                 child: Text(
                   'ยืนยัน',
