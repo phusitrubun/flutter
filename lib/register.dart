@@ -1,4 +1,8 @@
+import 'dart:developer';
+import 'package:flutter_application_1/models/response/userRegisterPostResponse.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/request/userRegisterPostRequest.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -11,7 +15,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _initialDepositController = TextEditingController();
+  String url = '';
+  // final _initialDepositController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -130,30 +135,30 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 16.0),
                         // Initial Deposit Field
-                        Row(
-                          children: [
-                            const Icon(Icons.account_balance_wallet,
-                                color: Color(0xFF90191B)),
-                            const SizedBox(width: 8.0),
-                            Expanded(
-                              child: TextField(
-                                controller: _initialDepositController,
-                                decoration: InputDecoration(
-                                  hintText: 'กำหนดเงินต้น',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Colors.grey,
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     const Icon(Icons.account_balance_wallet,
+                        //         color: Color(0xFF90191B)),
+                        //     const SizedBox(width: 8.0),
+                        //     Expanded(
+                        //       child: TextField(
+                        //         controller: _initialDepositController,
+                        //         decoration: InputDecoration(
+                        //           hintText: 'กำหนดเงินต้น',
+                        //           border: OutlineInputBorder(
+                        //             borderRadius: BorderRadius.circular(8.0),
+                        //             borderSide: const BorderSide(
+                        //               color: Colors.grey,
+                        //               width: 1.0,
+                        //             ),
+                        //           ),
+                        //           filled: true,
+                        //           fillColor: Colors.white,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),
@@ -175,9 +180,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: InkWell(
-                        onTap: () {
-                          // Handle registration logic
-                        },
+                        onTap: () => register(),
                         borderRadius: BorderRadius.circular(8.0),
                         child: SizedBox(
                           width: 200.0,
@@ -255,5 +258,134 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  register() async {
+    if (_usernameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('ไม่สำเร็จ'),
+              content: Text('ข้อมูลไม่ครบถ้วน กรุณากรอกให้ครบ'),
+              actions: <Widget>[
+                TextButton(
+                    child: Text('ตกลง'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ],
+            );
+          });
+    } else {
+      UserRegisterPostRequest user = new UserRegisterPostRequest(
+        username: _usernameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+       final response = await http.post(
+        Uri.parse("$url/register"),
+        headers: {"Content-Type": "application/json"},
+        body: userRegisterPostRequestToJson(user),
+      );
+      log(response.body);
+      UserRegisterPostResponse responseUser = userRegisterPostResponseFromJson(response.body);
+      log(responseUser.toString());
+      if(responseUser.message == "register success 1"){
+        showDialog(
+          context: context, 
+          builder: (BuildContext context){
+            return AlertDialog(
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('สำเร็จ',
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+                ],
+              ),
+              icon: Icon(Icons.check_circle_outline,
+              color: Colors.green,
+              size: 50,),
+              content: Text('สมัครสมาชิกสำเร็จ'),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                      ),
+                      child: Text('ตกลง'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                )
+              ],
+            );
+          });
+      } else if (responseUser.message == " มี email นี้แล้ว"){
+        showDialog(
+          context: context, 
+          builder: (BuildContext builder){
+            return AlertDialog(
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('ไม่สำเร็จ',
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+                ],
+              ),
+              icon: Icon(Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 50,),
+              content: Text('อีเมล์นี้มีผู้ใช้แล้ว กรุณาสร้างอีเมล์ใหม่'),
+              actions: <Widget>[
+                FilledButton(
+                  child: Text('ตกลง'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                 })
+              ],
+            );
+          });
+      } else if (responseUser.message == " มี username นี้แล้ว") {
+        showDialog(
+          context: context, 
+          builder: (BuildContext builder){
+            return AlertDialog(
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('ไม่สำเร็จ',
+                  style: TextStyle(fontWeight: FontWeight.bold),)
+                ],
+              ),
+              icon: Icon(Icons.error_outline_outlined,
+              color: Colors.red,
+              size: 50),
+              content: Text('ชื่อผู้ใช้นี้ถูกแล้ว กรุณากรอกชื่อใหม่'),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                      child: Text('ตกลง'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:  MaterialStateProperty.all<Color>(Colors.red)
+                      ),),
+                  ],
+                )
+              ],
+            );
+          });
+      }
+    }
   }
 }
