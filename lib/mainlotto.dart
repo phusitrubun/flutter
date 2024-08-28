@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/OwnPage/adminAddNewLotteryBoard.dart';
+import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/shared/appData.dart';
+import 'package:provider/provider.dart';
 import 'login.dart';
 
 class Mainlotto extends StatelessWidget {
@@ -55,11 +59,21 @@ class Mainlotto extends StatelessWidget {
                       TextButton(
                         onPressed: () {
                           // นำผู้ใช้ไปยังหน้า Login
-                          Navigator.push(
+                          if(context.read<AppData>().idx<=0){
+                            Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const LoginPage()),
                           );
+                          }
+                          else{
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyHomePage()),
+                          );
+                          }
+                          
                         },
                         child: const Text(
                           'start ›',
