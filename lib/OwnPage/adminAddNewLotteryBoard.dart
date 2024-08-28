@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/OwnPage/admin.dart';
 import 'package:flutter_application_1/config/config.dart';
+import 'package:flutter_application_1/login.dart';
 import 'package:flutter_application_1/models/response/lotteriesOwnAndOnStoreGetResponse.dart';
+import 'package:flutter_application_1/shared/appData.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class AddNewLotteryBoard extends StatefulWidget {
-  int idx = 0;
-  AddNewLotteryBoard({super.key, required this.idx});
+
+  AddNewLotteryBoard({super.key});
   @override
   _AddNewLotteryBoardState createState() => _AddNewLotteryBoardState();
 }
@@ -205,6 +208,7 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
   }
 
   Future<void> addNewLotteryNumber() async {
+    log(context.read<AppData>().idx.toString());
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
     final foundDatumLotteries = await http.get(Uri.parse("$url/getAllLottery"));

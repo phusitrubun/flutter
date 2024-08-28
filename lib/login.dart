@@ -7,7 +7,9 @@ import 'package:flutter_application_1/models/request/userLoginPostRequest.dart';
 import 'package:flutter_application_1/models/response/userLoginPostReaponse.dart';
 import 'package:flutter_application_1/register.dart';
 import 'package:flutter_application_1/reward.dart';
+import 'package:flutter_application_1/shared/appData.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -28,8 +30,10 @@ class _LoginPageState extends State<LoginPage> {
         url = config['apiEndpoint'];
       },
     );
+    context.read<AppData>().idx=0;
+    log(context.read<AppData>().idx.toString());
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,6 +287,9 @@ class _LoginPageState extends State<LoginPage> {
 
       if (responseLogin != null &&
           responseLogin.message == "login successful") {
+            setState(() {
+              context.read<AppData>().idx=responseLogin.user.uid;
+            });
         if (responseLogin.user.tid == 2) {
           log(responseLogin.user.username);
           showDialog(
@@ -320,10 +327,11 @@ class _LoginPageState extends State<LoginPage> {
             context: context,
             builder: (BuildContext context) {
               Future.delayed(Duration(seconds: 2), () {
+                
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Admin(idx: responseLogin.user.uid),
+                    builder: (context) => Admin(),
                   ),
                 );
               });

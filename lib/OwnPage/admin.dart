@@ -8,11 +8,13 @@ import 'package:flutter_application_1/OwnPage/adminShowLotteries.dart';
 import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/login.dart';
 import 'package:flutter_application_1/models/response/lotteriesOwnAndOnStoreGetResponse.dart';
+import 'package:flutter_application_1/shared/appData.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class Admin extends StatefulWidget {
-  int idx = 0;
-  Admin({super.key, required this.idx});
+  Admin({super.key});
   @override
   _AdminState createState() => _AdminState();
 }
@@ -30,9 +32,9 @@ class _AdminState extends State<Admin> {
     super.initState();
     loadData = getLotteryOnStore();
 
-    _pages.add(AdminShowLotterie(idx: widget.idx));
-    _pages.add(AddNewLotteryBoard(idx: widget.idx));
-    _pages.add(AdminPrizeAwardPage(idx:widget.idx));
+    _pages.add(AdminShowLotterie());
+    _pages.add(AddNewLotteryBoard());
+    _pages.add(AdminPrizeAwardPage());
   }
 
   @override
@@ -54,11 +56,11 @@ class _AdminState extends State<Admin> {
               color: Colors.amber[600],
             ),
             onPressed: () {
-              // เช่น ล้าง session หรือไปยังหน้า login
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
+               setState(() {
+                context.read<AppData>().idx = 0;
+                log(context.read<AppData>().idx.toString());
+              });
+              Get.offAll(()=>LoginPage());
             },
           ),
         ],
@@ -96,6 +98,7 @@ class _AdminState extends State<Admin> {
   }
 
   Future<void> getLotteryOnStore() async {
+    log(context.read<AppData>().idx.toString());
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
     var response = await http.get(Uri.parse('$url/getLotteryOnStore'));

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class Appdata with ChangeNotifier{
- int _userId=0;
+class AppData with ChangeNotifier{
+ int _idx=0;
 
-  int get userId => _userId;
+  int get idx => _idx;
 
-  set userId(int value) {
-    _userId = value;
+  set idx(int value) {
+    _idx = value;
   }
   User user=User();
 }
 
 class User{
-  int userId=0;
+  int idx=0;
 }
