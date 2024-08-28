@@ -1,25 +1,23 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/lottolist.dart';
-import 'package:flutter_application_1/models/response/profileGetResponse.dart';
-import 'package:flutter_application_1/profile.dart';
-import 'package:flutter_application_1/reward.dart';
-import 'package:flutter_application_1/config/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_application_1/models/response/profileGetResponse.dart';
+import 'package:flutter_application_1/models/response/getLotteryOwner.dart';
+import 'package:flutter_application_1/config/config.dart';
 
 class Wallet extends StatefulWidget {
-  int idx = 0;
-  Wallet({super.key, required this.idx});
+  final int idx;
+  Wallet({Key? key, required this.idx}) : super(key: key);
 
   @override
   State<Wallet> createState() => _WalletState();
 }
 
 class _WalletState extends State<Wallet> {
-  int _selectedIndex = 2;
   String url = '';
   late ProfileGetResponse profileRes;
+  late GetLotteryOwner lotteryOwnerRes;
   late Future<void> loadData;
 
   @override
@@ -31,9 +29,19 @@ class _WalletState extends State<Wallet> {
   Future<void> loadDataAsync() async {
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
-    var response = await http.get(Uri.parse('$url/getByID/${widget.idx}'));
-    profileRes = profileGetResponseFromJson(response.body);
+
+    // Fetch profile data
+    var profileResponse =
+        await http.get(Uri.parse('$url/getByID/${widget.idx}'));
+    profileRes = profileGetResponseFromJson(profileResponse.body);
+
+    // Fetch lottery data
+    var lotteryResponse =
+        await http.get(Uri.parse('$url/getLotteryOwner/${widget.idx}'));
+    lotteryOwnerRes = getLotteryOwnerFromJson(lotteryResponse.body);
+
     log(json.encode(profileRes.toJson()));
+    log(json.encode(lotteryOwnerRes.toJson()));
   }
 
   @override
@@ -97,7 +105,7 @@ class _WalletState extends State<Wallet> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              profileRes.wallet.toString(),
+                              '${profileRes.wallet} ฿',
                               style: TextStyle(
                                 color: Color(0xFF3D1B0F),
                                 fontSize: 24,
@@ -110,13 +118,26 @@ class _WalletState extends State<Wallet> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    'รายการที่ซื้อ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'รายการที่ซื้อ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'จำนวน: ${lotteryOwnerRes.lotterylist.length} ใบ',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Expanded(
@@ -191,14 +212,14 @@ class _WalletState extends State<Wallet> {
                           Expanded(
                             child: ListView.builder(
                               padding: EdgeInsets.all(10),
-                              itemCount:
-                                  0, // Adjust according to your data source
+                              itemCount: lotteryOwnerRes.lotterylist.length,
                               itemBuilder: (context, index) {
-                                // Adjust according to your data source
+                                final lottery =
+                                    lotteryOwnerRes.lotterylist[index];
                                 return _buildPurchaseItem(
-                                  'Number', // Replace with actual data
-                                  'lotto', // Replace with actual data
-                                  '-Price', // Replace with actual data
+                                  lottery.number.toString(),
+                                  'รอใส่สถานะรางวัล',
+                                  lottery.price.toString(),
                                 );
                               },
                             ),
@@ -244,14 +265,14 @@ class _WalletState extends State<Wallet> {
             ),
           ),
           Text(
-            'lottoType',
+            lottoType,
             style: const TextStyle(
               color: Color(0xFF3D1B0F),
               fontSize: 14,
             ),
           ),
           Text(
-            '$price ฿',
+            'เงินรางวัล ฿',
             style: const TextStyle(
               color: Color(0xFF3D1B0F),
               fontSize: 16,
