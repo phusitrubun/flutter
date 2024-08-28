@@ -1,14 +1,24 @@
+
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:flutter_application_1/mainlotto.dart';
 import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
 import 'package:flutter_application_1/profile.dart';
+import 'package:provider/provider.dart';
+
+import 'shared/appData.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create:  (context) => AppData(),)
+  ],child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -24,7 +34,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: MyHomePage(),
+      home: Mainlotto(),
     );
   }
 }
@@ -42,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      log(context.read<AppData>().idx.toString());
     });
   }
 
@@ -52,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         return MenuPage(idx: index);
       case 2:
-        return Wallet(idx: 4);
+        return Wallet(idx: context.read<AppData>().idx);
       default:
         return Mainlotto();
     }
@@ -76,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Profile(idx: 4),
+                    builder: (context) => Profile(idx:context.read<AppData>().idx),
                   ),
                 );
               },

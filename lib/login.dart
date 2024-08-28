@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/OwnPage/admin.dart';
 import 'package:flutter_application_1/config/config.dart';
+import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/models/request/userLoginPostRequest.dart';
 import 'package:flutter_application_1/models/response/userLoginPostReaponse.dart';
 import 'package:flutter_application_1/register.dart';
@@ -299,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MenuPage(idx: responseLogin.user.uid),
+                    builder: (context) => MyHomePage(),
                   ),
                 );
               });
