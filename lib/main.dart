@@ -1,12 +1,9 @@
-
-
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/lottolist.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:convert';
 import 'package:flutter_application_1/mainlotto.dart';
 import 'package:flutter_application_1/reward.dart';
 import 'package:flutter_application_1/wallet.dart';
@@ -16,9 +13,16 @@ import 'package:provider/provider.dart';
 import 'shared/appData.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create:  (context) => AppData(),)
-  ],child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => AppData(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -34,7 +38,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: Mainlotto(),
+      home: const Mainlotto(),
     );
   }
 }
@@ -52,20 +56,25 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      log(context.read<AppData>().idx.toString());
+      log('Selected Index: $_selectedIndex');
     });
   }
 
   Widget _getSelectedPage(int index) {
+    final appData = context.read<AppData>();
+
+    log('AppData idx: ${appData.idx}'); 
+
     switch (index) {
       case 0:
-        return Lottolist(idx: index);
+        return Lottolist(idx: appData.idx);
       case 1:
-        return MenuPage(idx: index);
+        return MenuPage(
+            idx: appData.idx); 
       case 2:
-        return Wallet(idx: context.read<AppData>().idx);
+        return Wallet(idx: appData.idx);
       default:
-        return Mainlotto();
+        return const Mainlotto();
     }
   }
 
@@ -73,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.red[900],
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,11 +93,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
-                print('Profile icon tapped');
+                log('Profile icon tapped');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Profile(idx:context.read<AppData>().idx),
+                    builder: (context) =>
+                        Profile(idx: context.read<AppData>().idx),
                   ),
                 );
               },

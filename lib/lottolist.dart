@@ -3,14 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/models/response/AllLotteryGetResponse.dart';
-import 'package:flutter_application_1/profile.dart';
-import 'package:flutter_application_1/reward.dart';
-import 'package:flutter_application_1/wallet.dart';
+import 'package:flutter_application_1/shared/appData.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class Lottolist extends StatefulWidget {
-  int idx = 0;
-  Lottolist({super.key, required this.idx});
+  final int idx;
+
+  const Lottolist({Key? key, required this.idx}) : super(key: key);
 
   @override
   State<Lottolist> createState() => _LottolistState();
@@ -35,11 +35,7 @@ class _LottolistState extends State<Lottolist> {
   }
 
   Future<void> getAllLottery() async {
-    // log('Fetching lottery data from: $url/getAllLottery');
     final response = await http.get(Uri.parse("$url/getAllLottery"));
-
-    // log('Response status code: ${response.statusCode}');
-    // log('Response body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 202) {
       if (response.body.isNotEmpty) {
@@ -48,19 +44,15 @@ class _LottolistState extends State<Lottolist> {
             List<AllLotteryGetResponse> allLotteries =
                 allLotteryGetResponseFromJson(response.body);
             lotteries = allLotteries.take(100).toList();
-            // log('Parsed lotteries: ${lotteries.length} items');
-            for (var lottery in lotteries) {
-              // log('Lottery Number: ${lottery.number}, Lottery ID: ${lottery.lid}, Status: ${lottery.status}');
-            }
           } catch (e) {
-            // log('Error parsing JSON: $e');
+            log('Error parsing JSON: $e');
           }
         });
       } else {
-        // log('Response body is empty');
+        log('Response body is empty');
       }
     } else {
-      // log('Failed to load lottery data: ${response.statusCode}');
+      log('Failed to load lottery data: ${response.statusCode}');
       throw Exception('Failed to load lottery data');
     }
   }
@@ -116,7 +108,7 @@ class _LottolistState extends State<Lottolist> {
                           return _buildLottoCard(
                             lotteries[index].number.toString(),
                             'lotto ${lotteries[index].lid}',
-                            lotteries[index].status == 1, // Check if sold
+                            lotteries[index].status == 1, 
                           );
                         },
                       ),
@@ -203,7 +195,7 @@ class _LottolistState extends State<Lottolist> {
         return AlertDialog(
           title: Center(
             child: Text(
-              'ซื้อ lotto',
+              'ซื้อ Lotto',
               style: TextStyle(
                 color: Color.fromARGB(255, 227, 197, 2),
                 fontWeight: FontWeight.bold,
@@ -237,7 +229,7 @@ class _LottolistState extends State<Lottolist> {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _buyLottery(lid, widget.idx);
+                  _buyLottery(lid);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(
@@ -267,38 +259,45 @@ class _LottolistState extends State<Lottolist> {
     );
   }
 
-  Future<void> _buyLottery(String lid, int uid) async {
+  Future<void> _buyLottery(String lid) async {
+    final appData = Provider.of<AppData>(context, listen: false);
+    final uid = appData.idx; // Fetching the user ID from AppData
+    log('Attempting to buy lottery. User ID: $uid, Lottery ID: $lid'); // New log statement
     try {
       final response = await http.post(
         Uri.parse('$url/BuyLotterys'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "lid": lid,
+          "lid": int.parse(lid),
           "uid": uid,
         }),
       );
 
       if (response.statusCode == 200) {
+        log('Lottery purchase successful. User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ซื้อล็อตเตอรี่สำเร็จ')),
         );
-        // รีเฟรชรายการล็อตเตอรี่
+        // Refresh the lottery list
         getAllLottery();
       } else if (response.statusCode == 400) {
+        log('Invalid data for lottery purchase. User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ข้อมูลไม่ถูกต้อง กรุณาลองใหม่')),
         );
       } else if (response.statusCode == 403) {
+        log('Insufficient funds for lottery purchase. User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ยอดเงินไม่เพียงพอ')),
         );
       } else {
+        log('Error in lottery purchase. Status code: ${response.statusCode}, User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
         );
       }
     } catch (e) {
-      log('Error in buyLottery: $e');
+      log('Exception in buyLottery: $e. User ID: $uid, Lottery ID: $lid'); // Updated log statement
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
       );
