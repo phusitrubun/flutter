@@ -9,8 +9,7 @@ import 'package:flutter_application_1/models/response/lotteriesOwnAndOnStoreGetR
 import 'package:http/http.dart' as http;
 
 class AdminShowLotterie extends StatefulWidget {
-  int idx = 0;
-  AdminShowLotterie({super.key, required this.idx});
+  AdminShowLotterie({super.key});
 
   @override
   State<AdminShowLotterie> createState() => _AdminShowLotterieState();

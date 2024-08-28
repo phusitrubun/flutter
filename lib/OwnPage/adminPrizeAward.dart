@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AdminPrizeAwardPage extends StatefulWidget {
-  int idx = 0;
-  AdminPrizeAwardPage({super.key, required this.idx});
+
+  AdminPrizeAwardPage({super.key});
 
   @override
   State<AdminPrizeAwardPage> createState() => _AdminPrizeAwardPageState();
