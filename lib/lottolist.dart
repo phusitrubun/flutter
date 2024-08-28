@@ -20,6 +20,7 @@ class _LottolistState extends State<Lottolist> {
   int _selectedIndex = 0;
   String url = '';
   List<AllLotteryGetResponse> lotteries = [];
+  int soldCount = 0;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _LottolistState extends State<Lottolist> {
             List<AllLotteryGetResponse> allLotteries =
                 allLotteryGetResponseFromJson(response.body);
             lotteries = allLotteries.take(100).toList();
+            soldCount = lotteries.where((lotto) => lotto.status == 0).length;
           } catch (e) {
             log('Error parsing JSON: $e');
           }
@@ -91,7 +93,7 @@ class _LottolistState extends State<Lottolist> {
                 ),
               ),
               Text(
-                'แสดง ${lotteries.length} รายการแรก',
+                'เหลือ $soldCount / 100 ใบ',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -108,7 +110,7 @@ class _LottolistState extends State<Lottolist> {
                           return _buildLottoCard(
                             lotteries[index].number.toString(),
                             'lotto ${lotteries[index].lid}',
-                            lotteries[index].status == 1, 
+                            lotteries[index].status == 1,
                           );
                         },
                       ),
