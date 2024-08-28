@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/admin.dart';
+import 'package:flutter_application_1/OwnPage/admin.dart';
 import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/models/request/userLoginPostRequest.dart';
 import 'package:flutter_application_1/models/response/userLoginPostReaponse.dart';
