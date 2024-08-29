@@ -110,7 +110,7 @@ class _LottolistState extends State<Lottolist> {
                           return _buildLottoCard(
                             lotteries[index].number.toString(),
                             'lotto ${lotteries[index].lid}',
-                            lotteries[index].status == 1,
+                            lotteries[index].status,
                           );
                         },
                       ),
@@ -122,13 +122,33 @@ class _LottolistState extends State<Lottolist> {
     );
   }
 
-  Widget _buildLottoCard(String number, String lottoType, bool isSold) {
+  Widget _buildLottoCard(String number, String lottoType, int status) {
+    Color statusColor;
+    String statusText;
+
+    if (status == 2) {
+      statusColor = Colors.green;
+      statusText = 'ถูกรางวัล';
+    } else if (status == 3) {
+      statusColor = Colors.red;
+      statusText = 'ไม่ถูกรางวัล';
+    } else if (status == 4) {
+      statusColor = const Color.fromARGB(255, 209, 165, 5);
+      statusText = 'ขึ้นรางวัลแล้ว';
+    } else if (status != 0 && status == 1) {
+      statusColor = Colors.red;
+      statusText = 'ขายแล้ว';
+    } else {
+      statusColor = Colors.transparent;
+      statusText = ''; // No status text for unsold lotteries
+    }
+
     return Stack(
       children: [
         GestureDetector(
-          onTap: isSold
-              ? null
-              : () => _showConfirmationDialog(number, lottoType.split(' ')[1]),
+          onTap: status == 0
+              ? () => _showConfirmationDialog(number, lottoType.split(' ')[1])
+              : null,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             margin: const EdgeInsets.only(bottom: 10),
@@ -167,18 +187,18 @@ class _LottolistState extends State<Lottolist> {
             ),
           ),
         ),
-        if (isSold)
+        if (statusText.isNotEmpty)
           Positioned(
             top: -5,
             right: -5,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: statusColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'ขายแล้ว',
+                statusText,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -285,23 +305,21 @@ class _LottolistState extends State<Lottolist> {
       } else if (response.statusCode == 400) {
         log('Invalid data for lottery purchase. User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ข้อมูลไม่ถูกต้อง กรุณาลองใหม่')),
+          SnackBar(content: Text('ข้อมูลไม่ถูกต้อง')),
         );
-      } else if (response.statusCode == 403) {
-        log('Insufficient funds for lottery purchase. User ID: $uid, Lottery ID: $lid'); // New log statement
+      } else if (response.statusCode == 404) {
+        log('Lottery not found. User ID: $uid, Lottery ID: $lid'); // New log statement
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ยอดเงินไม่เพียงพอ')),
+          SnackBar(content: Text('ไม่พบล็อตเตอรี่')),
         );
       } else {
-        log('Error in lottery purchase. Status code: ${response.statusCode}, User ID: $uid, Lottery ID: $lid'); // New log statement
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
-        );
+        log('Failed to purchase lottery: ${response.statusCode}'); // New log statement
+        throw Exception('Failed to purchase lottery');
       }
     } catch (e) {
-      log('Exception in buyLottery: $e. User ID: $uid, Lottery ID: $lid'); // Updated log statement
+      log('An error occurred while purchasing lottery: $e'); // New log statement
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาดในการซื้อ')),
+        SnackBar(content: Text('เกิดข้อผิดพลาด')),
       );
     }
   }
