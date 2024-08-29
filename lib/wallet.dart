@@ -19,7 +19,7 @@ class _WalletState extends State<Wallet> {
   String url = '';
   late ProfileGetResponse profileRes;
   late GetLotteryOwner lotteryOwnerRes;
-  late CheckLottery checkLotteryRes;
+  CheckLottery? checkLotteryRes;
   late Future<void> loadData;
 
   @override
@@ -42,14 +42,19 @@ class _WalletState extends State<Wallet> {
         await http.get(Uri.parse('$url/getLotteryOwner/${widget.idx}'));
     lotteryOwnerRes = getLotteryOwnerFromJson(lotteryResponse.body);
 
+    log(json.encode(profileRes.toJson()));
+    log(json.encode(lotteryOwnerRes.toJson()));
+  }
+
+  Future<void> checkLotteryStatus() async {
     // Fetch lottery check data
     var checkLotteryResponse =
         await http.get(Uri.parse('$url/checkLottery/${widget.idx}'));
     checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
+    log(json.encode(checkLotteryRes!.toJson()));
 
-    log(json.encode(profileRes.toJson()));
-    log(json.encode(lotteryOwnerRes.toJson()));
-    log(json.encode(checkLotteryRes.toJson()));
+    // Trigger UI update
+    setState(() {});
   }
 
   @override
@@ -176,9 +181,8 @@ class _WalletState extends State<Wallet> {
                                   ),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    // Implement check rewards functionality
-                                  },
+                                  onPressed:
+                                      checkLotteryStatus, // Add function here
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
@@ -225,7 +229,7 @@ class _WalletState extends State<Wallet> {
                                 final lottery =
                                     lotteryOwnerRes.lotterylist[index];
                                 final prizeInfo =
-                                    checkLotteryRes.results.firstWhere(
+                                    checkLotteryRes?.results.firstWhere(
                                   (result) => result.lid == lottery.lid,
                                   orElse: () => Result(
                                     lid: 0,
@@ -239,9 +243,12 @@ class _WalletState extends State<Wallet> {
                                 );
                                 return _buildPurchaseItem(
                                   lottery.number.toString(),
-                                  lottery.status, // Pass the status field here
+                                  checkLotteryRes != null
+                                      ? lottery.status
+                                      : 0, // Show status only if data is available
                                   lottery.price.toString(),
-                                  prizeInfo.prize, // Pass the prize information
+                                  prizeInfo?.prize ??
+                                      0, // Show prize if available
                                 );
                               },
                             ),
@@ -289,7 +296,7 @@ class _WalletState extends State<Wallet> {
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 6,
-            offset: Offset(0, 3),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -297,27 +304,39 @@ class _WalletState extends State<Wallet> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            number,
-            style: const TextStyle(
-              color: Color(0xFF3D1B0F),
+            'เลขที่: $number',
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF5B1E1E),
             ),
           ),
-          Text(
-            statusText,
-            style: TextStyle(
-              color: statusColor,
-              fontSize: 14,
-            ),
-          ),
-          Text(
-            '$prize ฿',
-            style: const TextStyle(
-              color: Color(0xFF3D1B0F),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                statusText,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: statusColor,
+                ),
+              ),
+              Text(
+                'รางวัล: $prize ฿',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                'ราคา: $price ฿',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
         ],
       ),
