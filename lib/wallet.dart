@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/models/response/profileGetResponse.dart';
 import 'package:flutter_application_1/models/response/getLotteryOwner.dart';
+import 'package:flutter_application_1/models/response/checkLottery.dart';
 import 'package:flutter_application_1/config/config.dart';
 
 class Wallet extends StatefulWidget {
@@ -18,6 +19,7 @@ class _WalletState extends State<Wallet> {
   String url = '';
   late ProfileGetResponse profileRes;
   late GetLotteryOwner lotteryOwnerRes;
+  late CheckLottery checkLotteryRes;
   late Future<void> loadData;
 
   @override
@@ -40,8 +42,14 @@ class _WalletState extends State<Wallet> {
         await http.get(Uri.parse('$url/getLotteryOwner/${widget.idx}'));
     lotteryOwnerRes = getLotteryOwnerFromJson(lotteryResponse.body);
 
+    // Fetch lottery check data
+    var checkLotteryResponse =
+        await http.get(Uri.parse('$url/checkLottery/${widget.idx}'));
+    checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
+
     log(json.encode(profileRes.toJson()));
     log(json.encode(lotteryOwnerRes.toJson()));
+    log(json.encode(checkLotteryRes.toJson()));
   }
 
   @override
@@ -216,10 +224,24 @@ class _WalletState extends State<Wallet> {
                               itemBuilder: (context, index) {
                                 final lottery =
                                     lotteryOwnerRes.lotterylist[index];
+                                final prizeInfo =
+                                    checkLotteryRes.results.firstWhere(
+                                  (result) => result.lid == lottery.lid,
+                                  orElse: () => Result(
+                                    lid: 0,
+                                    number: 0,
+                                    status: 0,
+                                    textStatus: 'ไม่พบข้อมูล',
+                                    uid: 0,
+                                    prize: 0,
+                                    rank: 0,
+                                  ),
+                                );
                                 return _buildPurchaseItem(
                                   lottery.number.toString(),
-                                  'รอใส่สถานะรางวัล',
+                                  lottery.status, // Pass the status field here
                                   lottery.price.toString(),
+                                  prizeInfo.prize, // Pass the prize information
                                 );
                               },
                             ),
@@ -237,14 +259,32 @@ class _WalletState extends State<Wallet> {
     );
   }
 
-  Widget _buildPurchaseItem(String number, String lottoType, String price) {
+  Widget _buildPurchaseItem(
+      String number, int status, String price, int prize) {
+    String statusText;
+    Color statusColor;
+
+    if (status == 2) {
+      statusText = 'ถูกรางวัล';
+      statusColor = Colors.green;
+    } else if (status == 3) {
+      statusText = 'ไม่ถูกรางวัล';
+      statusColor = Colors.red;
+    } else if (status == 4) {
+      statusText = 'ขึ้นรางวัลแล้ว';
+      statusColor = Colors.yellow[700]!;
+    } else {
+      statusText = 'รอออกรางวัล';
+      statusColor = const Color.fromARGB(255, 255, 157, 0);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 234, 233, 235),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.yellow[700]!, width: 2),
+        border: Border.all(color: statusColor, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -265,14 +305,14 @@ class _WalletState extends State<Wallet> {
             ),
           ),
           Text(
-            lottoType,
-            style: const TextStyle(
-              color: Color(0xFF3D1B0F),
+            statusText,
+            style: TextStyle(
+              color: statusColor,
               fontSize: 14,
             ),
           ),
           Text(
-            'เงินรางวัล ฿',
+            '$prize ฿',
             style: const TextStyle(
               color: Color(0xFF3D1B0F),
               fontSize: 16,
