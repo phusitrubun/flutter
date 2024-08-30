@@ -1,8 +1,9 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter_application_1/models/response/userRegisterPostResponse.dart';
 import 'package:flutter_application_1/models/request/userRegisterPostRequest.dart';
-import 'package:flutter_application_1/reward.dart';
+// import 'package:flutter_application_1/reward.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/src/painting/gradient.dart' as flutter_gradient;
 import 'package:giffy_dialog/giffy_dialog.dart';
@@ -22,6 +23,24 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   String url = '';
   // final _initialDepositController = TextEditingController();
+
+  @override
+  void initState(){
+    super.initState();
+    _initializeUrl();
+  }
+
+  Future<void> _initializeUrl() async {
+    try{
+      final config = await Configuration.getConfig();
+      setState(() {
+        url = config['apiEndpoint'].toString();
+        log("API Endpoint: $url");
+      });
+    } catch (error) {
+      log("Failled to load API Endpoint: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
