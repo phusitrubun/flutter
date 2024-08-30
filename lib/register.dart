@@ -1,8 +1,13 @@
 import 'dart:developer';
-import 'package:flutter_application_1/models/response/userRegisterPostResponse.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/response/userRegisterPostResponse.dart';
 import 'package:flutter_application_1/models/request/userRegisterPostRequest.dart';
+import 'package:flutter_application_1/reward.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/src/painting/gradient.dart' as flutter_gradient;
+import 'package:giffy_dialog/giffy_dialog.dart';
+// import 'package:lottie/lottie.dart';
+// import 'package:rive/src/rive_core/shapes/paint/radial_gradient.dart' as rive_gradient;
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -167,7 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Colors.transparent,
                     child: Ink(
                       decoration: BoxDecoration(
-                        gradient: const RadialGradient(
+                        gradient: const flutter_gradient.RadialGradient(
                           colors: [
                             Color(0xFFFDFCFF),
                             Color(0xFFE6D9AC),
@@ -214,7 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Colors.transparent,
                     child: Ink(
                       decoration: BoxDecoration(
-                        gradient: const RadialGradient(
+                        gradient: const flutter_gradient.RadialGradient(
                           colors: [
                             Color(0xFFFDFCFF),
                             Color(0xFFE6D9AC),
@@ -267,12 +272,36 @@ class _RegisterPageState extends State<RegisterPage> {
       showDialog(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
+            return GiffyDialog.image(
+              Image.network(
+                "https://raw.githubusercontent.com/Shashank02051997/FancyGifDialog-Android/master/GIF's/gif14.gif",
+                height: 200,
+                fit: BoxFit.cover,
+              ),
               title: Text('ไม่สำเร็จ'),
-              content: Text('ข้อมูลไม่ครบถ้วน กรุณากรอกให้ครบ'),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('ข้อมูลไม่ครบถ้วน กรุณากรอกให้ครบ'),
+                ],
+              ),
+              actionsAlignment: MainAxisAlignment.center,
               actions: <Widget>[
                 TextButton(
-                    child: Text('ตกลง'),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Text('ตกลง'),
+                          ],
+                        ),
+                      ],
+                    ),
                     onPressed: () {
                       Navigator.of(context).pop();
                     })
@@ -285,106 +314,156 @@ class _RegisterPageState extends State<RegisterPage> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-       final response = await http.post(
+      final response = await http.post(
         Uri.parse("$url/register"),
         headers: {"Content-Type": "application/json"},
         body: userRegisterPostRequestToJson(user),
       );
       log(response.body);
-      UserRegisterPostResponse responseUser = userRegisterPostResponseFromJson(response.body);
+      UserRegisterPostResponse responseUser =
+          userRegisterPostResponseFromJson(response.body);
       log(responseUser.toString());
-      if(responseUser.message == "register success 1"){
+      if (responseUser.message == "register success 1") {
         showDialog(
-          context: context, 
-          builder: (BuildContext context){
-            return AlertDialog(
-              title: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('สำเร็จ',
-                  style: TextStyle(fontWeight: FontWeight.bold),),
-                ],
-              ),
-              icon: Icon(Icons.check_circle_outline,
-              color: Colors.green,
-              size: 50,),
-              content: Text('สมัครสมาชิกสำเร็จ'),
-              actions: <Widget>[
-                Row(
+            context: context,
+            builder: (BuildContext context) {
+              return GiffyDialog.lottie(
+                Lottie.network(
+                  "https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json",
+                  fit: BoxFit.contain,
+                  height: 200,
+                ),
+                title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    FilledButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
-                      ),
-                      child: Text('ตกลง'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                    Text(
+                      'สำเร็จ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
-                )
-              ],
-            );
-          });
-      } else if (responseUser.message == " มี email นี้แล้ว"){
-        showDialog(
-          context: context, 
-          builder: (BuildContext builder){
-            return AlertDialog(
-              title: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('ไม่สำเร็จ',
-                  style: TextStyle(fontWeight: FontWeight.bold),),
-                ],
-              ),
-              icon: Icon(Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 50,),
-              content: Text('อีเมล์นี้มีผู้ใช้แล้ว กรุณาสร้างอีเมล์ใหม่'),
-              actions: <Widget>[
-                FilledButton(
-                  child: Text('ตกลง'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                 })
-              ],
-            );
-          });
-      } else if (responseUser.message == " มี username นี้แล้ว") {
-        showDialog(
-          context: context, 
-          builder: (BuildContext builder){
-            return AlertDialog(
-              title: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('ไม่สำเร็จ',
-                  style: TextStyle(fontWeight: FontWeight.bold),)
-                ],
-              ),
-              icon: Icon(Icons.error_outline_outlined,
-              color: Colors.red,
-              size: 50),
-              content: Text('ชื่อผู้ใช้นี้ถูกแล้ว กรุณากรอกชื่อใหม่'),
-              actions: <Widget>[
-                Row(
+                ),
+                content: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    FilledButton(
-                      child: Text('ตกลง'),
+                    Text('สมัครสมาชิกสำเร็จ'),
+                  ],
+                ),
+                actionsAlignment: MainAxisAlignment.center,
+                actions: <Widget>[
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green, 
+                      foregroundColor: Colors.white),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Text('ตกลง'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            });
+      } else if (responseUser.message == " มี email นี้แล้ว") {
+        showDialog(
+            context: context,
+            builder: (BuildContext builder) {
+              return GiffyDialog.rive(
+                RiveAnimation.network(
+                  "https://cdn.rive.app/animations/vehicles.riv",
+                  fit: BoxFit.cover,
+                  placeHolder: Center(child: CircularProgressIndicator()),
+                ),
+                title: Text(
+                  'ไม่สำเร็จ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                // icon: Icon(
+                //   Icons.error_outline_outlined,
+                //   color: Colors.red,
+                //   size: 50,
+                // ),
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('อีเมล์นี้มีผู้ใช้แล้ว กรุณาสร้างอีเมล์ใหม่'),
+                  ],
+                ),
+                actionsAlignment: MainAxisAlignment.center,
+                actions: <Widget>[
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.red, 
+                      foregroundColor: Colors.white),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Text('ตกลง'),
+                            ],
+                          ),
+                        ],
+                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
-                      },
-                      style: ButtonStyle(
-                        backgroundColor:  MaterialStateProperty.all<Color>(Colors.red)
-                      ),),
+                      })
+                ],
+              );
+            });
+      } else if (responseUser.message == " มี username นี้แล้ว") {
+        showDialog(
+            context: context,
+            builder: (BuildContext builder) {
+              return GiffyDialog.rive(
+                RiveAnimation.network(
+                  "https://cdn.rive.app/animations/vehicles.riv",
+                  fit: BoxFit.cover,
+                  placeHolder: Center(child: CircularProgressIndicator()),
+                ),
+                title: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ไม่สำเร็จ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
                   ],
-                )
-              ],
-            );
-          });
+                ),
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('ชื่อผู้ใช้นี้ถูกแล้ว กรุณากรอกชื่อใหม่'),
+                  ],
+                ),
+                actionsAlignment: MainAxisAlignment.center,
+                actions: <Widget>[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FilledButton(
+                          child: Text('ตกลง'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: TextButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white)),
+                    ],
+                  )
+                ],
+              );
+            });
       }
     }
   }
