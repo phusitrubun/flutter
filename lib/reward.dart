@@ -1,38 +1,40 @@
 import 'dart:developer';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_application_1/config/config.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/lottolist.dart';
-import 'package:flutter_application_1/profile.dart';
-import 'wallet.dart'; // Import the Wallet page
+import 'package:flutter_application_1/models/response/Getprizeaward.dart';
 
 class MenuPage extends StatefulWidget {
-  int idx = 0;
-  MenuPage({super.key, required this.idx});
+  final int idx;
+  MenuPage({Key? key, required this.idx}) : super(key: key);
 
   @override
-  State<MenuPage> createState() => _MenuPageState();
+  _MenuPageState createState() => _MenuPageState();
 }
 
 class _MenuPageState extends State<MenuPage> {
-  // int _selectedIndex = 0;
+  Future<GetPrizeAward>? futurePrizeAward;
 
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  //   if (index == 2) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) =>  Wallet(idx:widget.idx)),
-  //     );
-  //   }
-  //   if (index == 0) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) =>  Lottolist(idx:widget.idx)),
-  //     );
-  //   }
-  // }
+  String url = '';
+
+  @override
+  void initState() {
+    super.initState();
+    futurePrizeAward = fetchPrizeAward();
+  }
+
+  Future<GetPrizeAward> fetchPrizeAward() async {
+    var config = await Configuration.getConfig();
+    url = config['apiEndpoint'];
+    var response = await http.get(Uri.parse('$url/getPrizeAward'));
+
+    if (response.statusCode == 200) {
+      return getPrizeAwardFromJson(response.body);
+    } else {
+      throw Exception('Failed to load prize award');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,57 +72,66 @@ class _MenuPageState extends State<MenuPage> {
               ),
               // const SizedBox(height: 10),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(12),
-                  children: [
-                    _buildMainPrizeCard('รางวัลที่ 1', '848322',
-                        'lotto6 88 Jackpot 1,000,000 ฿'),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildSecondaryPrizeCard('รางวัลที่ 2',
-                              '463945', 'lotto5 21 win 100,000 ฿'),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildSecondaryPrizeCard('รางวัลที่ 3',
-                              '404902', 'lotto6 88 win 10,000 ฿'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildSecondaryPrizeCard(
-                        'รางวัลที่ 4', '173528', 'lotto6 21 win 5,000 ฿'),
-                    const SizedBox(height: 8),
-                    _buildSecondaryPrizeCard(
-                        'รางวัลที่ 5', '848322', 'lotto6 5 win 2,000 ฿'),
-                  ],
-                ),
-              ),
+                child: futurePrizeAward == null
+                    ? Center(child: CircularProgressIndicator())
+                    : FutureBuilder<GetPrizeAward>(
+                        future: futurePrizeAward,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          } else if (snapshot.hasData) {
+                            return _buildPrizeList(snapshot.data!);
+                          } else {
+                            return Center(child: Text('No data available'));
+                          }
+                        },
+                      ),
+              )
             ],
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   backgroundColor: Colors.red[900],
-      //   selectedItemColor: Colors.yellow[700],
-      //   unselectedItemColor: Colors.yellow[200],
-      //   selectedFontSize: 12,
-      //   unselectedFontSize: 10,
-      //   currentIndex: _selectedIndex,
-      //   onTap: _onItemTapped,
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.receipt), label: 'ลอตเตอร์รี่'),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.star),
-      //       label: 'รางวัล',
-      //     ),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.account_balance_wallet), label: 'กระเป๋าเงิน'),
-      //   ],
-      // ),
+    );
+  }
+
+  Widget _buildPrizeList(GetPrizeAward prizeAward) {
+    List<DtoList> sortedList = List.from(prizeAward.dtoList)
+      ..sort((a, b) => a.rank.compareTo(b.rank));
+
+    return ListView(
+      padding: const EdgeInsets.all(12),
+      children: [
+        _buildMainPrizeCard('รางวัลที่ 1', '${sortedList[0].number}',
+            'lotto6 ${sortedList[0].lid} Jackpot ${sortedList[0].prize} ฿'),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _buildSecondaryPrizeCard(
+                  'รางวัลที่ 2',
+                  '${sortedList[1].number}',
+                  'lotto5 ${sortedList[1].lid} win ${sortedList[1].prize} ฿'),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildSecondaryPrizeCard(
+                  'รางวัลที่ 3',
+                  '${sortedList[2].number}',
+                  'lotto6 ${sortedList[2].lid} win ${sortedList[2].prize} ฿'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildSecondaryPrizeCard('รางวัลที่ 4', '${sortedList[3].number}',
+            'lotto6 ${sortedList[3].lid} win ${sortedList[3].prize} ฿'),
+        const SizedBox(height: 8),
+        _buildSecondaryPrizeCard('รางวัลที่ 5', '${sortedList[4].number}',
+            'lotto6 ${sortedList[4].lid} win ${sortedList[4].prize} ฿'),
+      ],
     );
   }
 

@@ -61,16 +61,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getSelectedPage(int index) {
-    final appData = context.read<AppData>();
+    final appData = context.watch<AppData>();
 
-    log('AppData idx: ${appData.idx}'); 
+    log('AppData idx: ${appData.idx}');
 
     switch (index) {
       case 0:
         return Lottolist(idx: appData.idx);
       case 1:
-        return MenuPage(
-            idx: appData.idx); 
+        return MenuPage(idx: appData.idx);
       case 2:
         return Wallet(idx: appData.idx);
       default:
