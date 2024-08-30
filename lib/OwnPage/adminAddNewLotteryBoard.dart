@@ -1,18 +1,13 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/OwnPage/admin.dart';
 import 'package:flutter_application_1/config/config.dart';
-import 'package:flutter_application_1/login.dart';
-import 'package:flutter_application_1/models/response/lotteriesOwnAndOnStoreGetResponse.dart';
-import 'package:flutter_application_1/shared/appData.dart';
-
+import 'package:flutter_application_1/models/response/allLotteryGetResponse.dart';
+import 'package:flutter_application_1/models/response/deleteLotteriesAllDeleteResponse.dart';
+import 'package:flutter_application_1/models/response/generateLotteriesPostResponse.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class AddNewLotteryBoard extends StatefulWidget {
-
   AddNewLotteryBoard({super.key});
   @override
   _AddNewLotteryBoardState createState() => _AddNewLotteryBoardState();
@@ -22,7 +17,17 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
   final TextEditingController _lotteryNumberController =
       TextEditingController();
   String url = "";
-  int _selectedIndex = 1;
+  List<AllLotteryGetResponse> foundDatumLotteries=[];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Configuration.getConfig().then((config) {
+      url = config['apiEndpoint'];
+      allLotterryfound();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,13 +106,7 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        if (_lotteryNumberController.text.isNotEmpty) {
-                          addNewLotteryNumber();
-                        } else {
-                          showErrorDialog('กรุณากรอกหมายเลขลอตเตอรี่');
-                        }
-                      },
+                      onPressed: () => RemoveAllLotteries(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7A0000),
                         padding: const EdgeInsets.symmetric(
@@ -190,9 +189,13 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
                               ],
                             ),
                             Text(
-                                '1) สามารถสุ่มล็อตเตอรี่ได้เพียงหนึ่งครั้ง ไม่สามารถเพิ่มได้',style: TextStyle(color: Colors.white, fontSize: 18)),
+                                '1) สามารถสุ่มล็อตเตอรี่ได้เพียงหนึ่งครั้ง ไม่สามารถเพิ่มได้',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18)),
                             Text(
-                                '2) ขึ้นกระดานใหม่ต้องล้างล็อตเตอรี่ทั้งหมดก่อนและค่อยสุ่ม',style: TextStyle(color: Colors.white, fontSize: 18))
+                                '2) ขึ้นกระดานใหม่ต้องล้างล็อตเตอรี่ทั้งหมดก่อนและค่อยสุ่ม',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18))
                           ],
                         ),
                       ),
@@ -207,24 +210,51 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
     );
   }
 
-  Future<void> addNewLotteryNumber() async {
-    log(context.read<AppData>().idx.toString());
-    var config = await Configuration.getConfig();
-    url = config['apiEndpoint'];
-    final foundDatumLotteries = await http.get(Uri.parse("$url/getAllLottery"));
-    if (foundDatumLotteries != null) {
-      showNotAddDialog(
-          'มีการสุ่มเลขล็อตเตอรี่มาขายแล้ว กรุณาลบล็อตเตอรี่ทั้งหมด เพื่อสร้างกระดานเลขใหม่');
+  Future <void> allLotterryfound() async {
+    var lotteriesFound = await http.get(Uri.parse("$url/getAllLottery"));
+    setState(() {
+       foundDatumLotteries=allLotteryGetResponseFromJson(lotteriesFound.body);
+       log(foundDatumLotteries.toString());
+    });
+  }
+
+  void addNewLotteryNumber() async {
+    await allLotterryfound();
+    if (foundDatumLotteries.isNotEmpty) {
+      showNotAddDialog('มีการสุ่มเลขล็อตเตอรี่มาขายแล้ว');
     } else {
-      final generrateLotteries = await http.post(
-        Uri.parse('$url/GennerateTickets'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'numberOfTickets': _lotteryNumberController.text}),
-      );
-      if (generrateLotteries.statusCode == 200) {
-        showSuccessDialog('บันทึกสำเร็จ');
+      String input = _lotteryNumberController.text;
+      log(input);
+      int number = int.parse(input);
+      final generrateLotteries =
+          await http.post(Uri.parse('$url/GenerateTickets/${number}'));
+      GenerateLotteriesPostResponse genLot =
+          generateLotteriesPostResponseFromJson(generrateLotteries.body);
+      if (genLot.count > 0) {
+        showSuccessDialog('สร้างล็อตเตอรี่สำเร็จ ${genLot.count} ใบ');
+        allLotterryfound();
       } else {
-        showErrorDialog('บันทึกไม่สำเร็จ');
+        showErrorDialog(
+            'สร้างไม่สำเร็จเพราะว่ามีล็อตเตอรี่ในฐานข้อมูลอยู่แล้ว');
+      }
+    }
+  }
+
+  void RemoveAllLotteries() async {
+   await allLotterryfound();
+    if (foundDatumLotteries.isEmpty) {
+      showNotDelDialog('ไม่สามารถลบได้ฐานข้อมูล');
+    } else {
+      final deleteLotteries =
+          await http.delete(Uri.parse('$url/deleteAllTicket'));
+      log(deleteLotteries.body);
+      DeleteLotteriesAllDeleteResponse response =
+          deleteLotteriesAllDeleteResponseFromJson(deleteLotteries.body);
+      if (response.message == "Delete success  of tickets removed") {
+        showSuccessDelDialog('ลบล็อตเตอรี่ทั้งหมดสำเร็จแล้ว');
+      } else if (response.message == "No tickets were deleted") {
+        showNotDelDialog(
+            'ลบไม่สำเร็จเพราะว่าไม่มีล็อตเตอรี่ในฐานข้อมูลอยู่แล้ว');
       }
     }
   }
@@ -233,14 +263,38 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('สำเร็จ'),
-        content: Text(message),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('สร้างรายการสำเร็จ'),
+          ],
+        ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(message),
+          ],
+        ),
+        icon: Icon(
+          Icons.check_circle_outline_rounded,
+          color: Colors.green,
+          size: 40,
+        ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('ตกลง'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'ตกลง',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -251,14 +305,35 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ผิดพลาด'),
-        content: Text(message),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('สร้างรายการไม่สำเร็จ'),
+          ],
+        ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(message),
+          ],
+        ),
+        icon: Icon(
+          Icons.error_outline_rounded,
+          color: Colors.red,
+          size: 40,
+        ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('ตกลง'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('ตกลง'),
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              ),
+            ],
           ),
         ],
       ),
@@ -269,14 +344,101 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ผิดพลาด'),
-        content: Text(message),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('สร้างรายการไม่สำเร็จ'),
+          ],
+        ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(message),
+          ],
+        ),
+        icon: Icon(Icons.create, color: Colors.red, size: 40),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('ตกลง'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('ตกลง'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showNotDelDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('ลบรายการไม่สำเร็จ'),
+          ],
+        ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(message),
+          ],
+        ),
+        icon: Icon(Icons.delete, color: Colors.red, size: 40),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('ตกลง'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showSuccessDelDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('ลบรายการสำเร็จ'),
+          ],
+        ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(message),
+          ],
+        ),
+        icon: Icon(Icons.delete, color: Colors.green, size: 40),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                child: const Text('ตกลง'),
+              ),
+            ],
           ),
         ],
       ),
