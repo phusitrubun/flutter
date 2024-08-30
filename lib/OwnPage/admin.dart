@@ -22,15 +22,15 @@ class Admin extends StatefulWidget {
 class _AdminState extends State<Admin> {
   int _selectedIndex = 0;
   String url = "";
-  late LotteriesIOwnAndOnStoreGetResponse lotteriesFound;
-  late Future<void> loadData;
+  // late LotteriesIOwnAndOnStoreGetResponse lotteriesFound;
+  // late Future<void> loadData;
 
   final List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
-    loadData = getLotteryOnStore();
+    // loadData = getLotteryOnStore();
 
     _pages.add(AdminShowLotterie());
     _pages.add(AddNewLotteryBoard());
@@ -97,23 +97,23 @@ class _AdminState extends State<Admin> {
     );
   }
 
-  Future<void> getLotteryOnStore() async {
-    log(context.read<AppData>().idx.toString());
-    var config = await Configuration.getConfig();
-    url = config['apiEndpoint'];
-    var response = await http.get(Uri.parse('$url/getLotteryOnStore'));
-    setState(() {
-      lotteriesFound =
-          lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
-      log(json.encode(lotteriesFound.toJson()));
-    });
-  }
+  // Future<void> getLotteryOnStore() async {
+  //   log(context.read<AppData>().idx.toString());
+  //   var config = await Configuration.getConfig();
+  //   url = config['apiEndpoint'];
+  //   var response = await http.get(Uri.parse('$url/getLotteryOnStore'));
+  //   setState(() {
+  //     lotteriesFound =
+  //         lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+  //     log(json.encode(lotteriesFound.toJson()));
+  //   });
+  // }
 
-  getLotterieSoldOut() async {
-    var response = await http.get(Uri.parse('$url/getLotterySoldOwn'));
-    setState(() {
-      lotteriesFound =
-          lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
-    });
-  }
+  // getLotterieSoldOut() async {
+  //   var response = await http.get(Uri.parse('$url/getLotterySoldOwn'));
+  //   setState(() {
+  //     lotteriesFound =
+  //         lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+  //   });
+  // }
 }

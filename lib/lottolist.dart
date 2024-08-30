@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/config/config.dart';
-import 'package:flutter_application_1/models/response/AllLotteryGetResponse.dart';
+import 'package:flutter_application_1/models/response/allLotteryGetResponse.dart';
 import 'package:flutter_application_1/shared/appData.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
