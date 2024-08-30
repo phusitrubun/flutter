@@ -39,7 +39,10 @@ dependencies:
   giffy_dialog: ^2.1.0
   get: ^4.6.6
   provider: ^6.1.2
+  shared_preferences: ^2.3.2
   
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
