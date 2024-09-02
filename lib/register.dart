@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/config/config.dart';
+import 'package:flutter_application_1/login.dart';
 import 'package:flutter_application_1/models/response/userRegisterPostResponse.dart';
 import 'package:flutter_application_1/models/request/userRegisterPostRequest.dart';
 // import 'package:flutter_application_1/reward.dart';
@@ -25,13 +26,13 @@ class _RegisterPageState extends State<RegisterPage> {
   // final _initialDepositController = TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _initializeUrl();
   }
 
   Future<void> _initializeUrl() async {
-    try{
+    try {
       final config = await Configuration.getConfig();
       setState(() {
         url = config['apiEndpoint'].toString();
@@ -158,31 +159,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ],
                         ),
                         const SizedBox(height: 16.0),
-                        // Initial Deposit Field
-                        // Row(
-                        //   children: [
-                        //     const Icon(Icons.account_balance_wallet,
-                        //         color: Color(0xFF90191B)),
-                        //     const SizedBox(width: 8.0),
-                        //     Expanded(
-                        //       child: TextField(
-                        //         controller: _initialDepositController,
-                        //         decoration: InputDecoration(
-                        //           hintText: 'กำหนดเงินต้น',
-                        //           border: OutlineInputBorder(
-                        //             borderRadius: BorderRadius.circular(8.0),
-                        //             borderSide: const BorderSide(
-                        //               color: Colors.grey,
-                        //               width: 1.0,
-                        //             ),
-                        //           ),
-                        //           filled: true,
-                        //           fillColor: Colors.white,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),
@@ -371,8 +347,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 actions: <Widget>[
                   TextButton(
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.green, 
-                      foregroundColor: Colors.white),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -385,7 +361,18 @@ class _RegisterPageState extends State<RegisterPage> {
                       ],
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => MenuPage(idx: 1,),
+                      //   ),
+                      // );
                     },
                   ),
                 ],
@@ -395,11 +382,13 @@ class _RegisterPageState extends State<RegisterPage> {
         showDialog(
             context: context,
             builder: (BuildContext builder) {
-              return GiffyDialog.rive(
-                RiveAnimation.network(
-                  "https://cdn.rive.app/animations/vehicles.riv",
-                  fit: BoxFit.cover,
-                  placeHolder: Center(child: CircularProgressIndicator()),
+              return GiffyDialog.image(
+                Image.network(
+                  "https://raw.githubusercontent.com/Shashank02051997/FancyGifDialog-Android/master/GIF's/gif14.gif",
+                  fit: BoxFit.contain,
+                  height: 200,
+                  // placeHolder: Center(child: CircularProgressIndicator()),
+                  // child: SizedBox(height: 200, child: rive),
                 ),
                 title: Text(
                   'ไม่สำเร็จ',
@@ -419,9 +408,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 actionsAlignment: MainAxisAlignment.center,
                 actions: <Widget>[
                   TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.red, 
-                      foregroundColor: Colors.white),
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -443,11 +432,12 @@ class _RegisterPageState extends State<RegisterPage> {
         showDialog(
             context: context,
             builder: (BuildContext builder) {
-              return GiffyDialog.rive(
-                RiveAnimation.network(
-                  "https://cdn.rive.app/animations/vehicles.riv",
+              return GiffyDialog.image(
+                Image.network(
+                  "https://raw.githubusercontent.com/Shashank02051997/FancyGifDialog-Android/master/GIF's/gif14.gif",
                   fit: BoxFit.cover,
-                  placeHolder: Center(child: CircularProgressIndicator()),
+                  height: 200,
+                  // placeHolder: Center(child: CircularProgressIndicator()),
                 ),
                 title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
