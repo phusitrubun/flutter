@@ -145,7 +145,7 @@ class _LottolistState extends State<Lottolist> {
     }
 
     // ตรวจสอบว่ามีลอตเตอรี่ที่ถูกรางวัล (status == 2) อยู่ในรายการหรือไม่
-    bool hasWinningLottery = lotteries.any((lotto) => lotto.status == 2);
+    bool hasWinningLottery = lotteries.any((lotto) => lotto.status >= 2);
 
     return Stack(
       children: [
@@ -153,7 +153,7 @@ class _LottolistState extends State<Lottolist> {
           // กดซื้อได้เมื่อสถานะเป็น 0 และยังไม่มีลอตเตอรี่ที่ถูกรางวัล
           onTap: (status == 0 && !hasWinningLottery)
               ? () => _showConfirmationDialog(number, lottoType.split(' ')[1])
-              : null, // ถ้ามีลอตเตอรี่ถูกรางวัลแล้ว จะไม่สามารถกดซื้อได้
+              : null, 
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             margin: const EdgeInsets.only(bottom: 10),
