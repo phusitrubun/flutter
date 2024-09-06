@@ -126,6 +126,7 @@ class _LottolistState extends State<Lottolist> {
     Color statusColor;
     String statusText;
 
+    // ตรวจสอบสถานะและกำหนดสีและข้อความ
     if (status == 2) {
       statusColor = Colors.green;
       statusText = 'ถูกรางวัล';
@@ -135,7 +136,7 @@ class _LottolistState extends State<Lottolist> {
     } else if (status == 4) {
       statusColor = const Color.fromARGB(255, 209, 165, 5);
       statusText = 'ขึ้นรางวัลแล้ว';
-    } else if (status != 0 && status == 1) {
+    } else if (status == 1) {
       statusColor = Colors.red;
       statusText = 'ขายแล้ว';
     } else {
@@ -143,12 +144,16 @@ class _LottolistState extends State<Lottolist> {
       statusText = ''; // No status text for unsold lotteries
     }
 
+    // ตรวจสอบว่ามีลอตเตอรี่ที่ถูกรางวัล (status == 2) อยู่ในรายการหรือไม่
+    bool hasWinningLottery = lotteries.any((lotto) => lotto.status == 2);
+
     return Stack(
       children: [
         GestureDetector(
-          onTap: status == 0
+          // กดซื้อได้เมื่อสถานะเป็น 0 และยังไม่มีลอตเตอรี่ที่ถูกรางวัล
+          onTap: (status == 0 && !hasWinningLottery)
               ? () => _showConfirmationDialog(number, lottoType.split(' ')[1])
-              : null,
+              : null, // ถ้ามีลอตเตอรี่ถูกรางวัลแล้ว จะไม่สามารถกดซื้อได้
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             margin: const EdgeInsets.only(bottom: 10),

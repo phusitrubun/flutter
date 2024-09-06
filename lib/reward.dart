@@ -105,32 +105,57 @@ class _MenuPageState extends State<MenuPage> {
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
-        _buildMainPrizeCard('รางวัลที่ 1', '${sortedList[0].number}',
-            'lotto6 ${sortedList[0].lid} Jackpot ${sortedList[0].prize} ฿'),
+        _buildMainPrizeCard(
+          'รางวัลที่ 1',
+          sortedList.isNotEmpty ? '${sortedList[0].number}' : 'ยังไม่ออกรางวัล',
+          sortedList.isNotEmpty
+              ? 'lotto6 ${sortedList[0].lid} Jackpot ${sortedList[0].prize} ฿'
+              : '',
+        ),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: _buildSecondaryPrizeCard(
-                  'รางวัลที่ 2',
-                  '${sortedList[1].number}',
-                  'lotto5 ${sortedList[1].lid} win ${sortedList[1].prize} ฿'),
+                'รางวัลที่ 2',
+                sortedList.length > 1
+                    ? '${sortedList[1].number}'
+                    : 'ยังไม่ออกรางวัล',
+                sortedList.length > 1
+                    ? 'lotto5 ${sortedList[1].lid} win ${sortedList[1].prize} ฿'
+                    : '',
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _buildSecondaryPrizeCard(
-                  'รางวัลที่ 3',
-                  '${sortedList[2].number}',
-                  'lotto6 ${sortedList[2].lid} win ${sortedList[2].prize} ฿'),
+                'รางวัลที่ 3',
+                sortedList.length > 2
+                    ? '${sortedList[2].number}'
+                    : 'ยังไม่ออกรางวัล',
+                sortedList.length > 2
+                    ? 'lotto6 ${sortedList[2].lid} win ${sortedList[2].prize} ฿'
+                    : '',
+              ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        _buildSecondaryPrizeCard('รางวัลที่ 4', '${sortedList[3].number}',
-            'lotto6 ${sortedList[3].lid} win ${sortedList[3].prize} ฿'),
+        _buildSecondaryPrizeCard(
+          'รางวัลที่ 4',
+          sortedList.length > 3 ? '${sortedList[3].number}' : 'ยังไม่ออกรางวัล',
+          sortedList.length > 3
+              ? 'lotto6 ${sortedList[3].lid} win ${sortedList[3].prize} ฿'
+              : '',
+        ),
         const SizedBox(height: 8),
-        _buildSecondaryPrizeCard('รางวัลที่ 5', '${sortedList[4].number}',
-            'lotto6 ${sortedList[4].lid} win ${sortedList[4].prize} ฿'),
+        _buildSecondaryPrizeCard(
+          'รางวัลที่ 5',
+          sortedList.length > 4 ? '${sortedList[4].number}' : 'ยังไม่ออกรางวัล',
+          sortedList.length > 4
+              ? 'lotto6 ${sortedList[4].lid} win ${sortedList[4].prize} ฿'
+              : '',
+        ),
       ],
     );
   }
