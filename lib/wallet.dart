@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/shared/appData.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/models/response/profileGetResponse.dart';
 import 'package:flutter_application_1/models/response/getLotteryOwner.dart';
 import 'package:flutter_application_1/models/response/checkLottery.dart';
 import 'package:flutter_application_1/config/config.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Wallet extends StatefulWidget {
@@ -20,7 +22,7 @@ class _WalletState extends State<Wallet> {
   String url = '';
   late ProfileGetResponse profileRes;
   late GetLotteryOwner lotteryOwnerRes;
-  CheckLottery? checkLotteryRes;
+  late CheckLottery checkLotteryRes;
   late Future<void> loadData;
 
   @override
@@ -36,17 +38,14 @@ class _WalletState extends State<Wallet> {
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
 
-  
     var profileResponse =
         await http.get(Uri.parse('$url/getByID/${widget.idx}'));
     profileRes = profileGetResponseFromJson(profileResponse.body);
-
 
     var lotteryResponse =
         await http.get(Uri.parse('$url/getLotteryOwner/${widget.idx}'));
     lotteryOwnerRes = getLotteryOwnerFromJson(lotteryResponse.body);
 
-    
     await loadSavedLotteryCheckResults();
 
     log(json.encode(profileRes.toJson()));
@@ -88,9 +87,9 @@ class _WalletState extends State<Wallet> {
     }
 
     try {
-      var checkLotteryResponse =
-          await http.get(Uri.parse('$url/CheckLottery/${profileRes.uid}'));
-
+      log(context.read<AppData>().idx.toString());
+      var checkLotteryResponse = await http
+          .get(Uri.parse('$url/CheckLottery/${context.read<AppData>().idx}'));
       if (checkLotteryResponse.statusCode == 200) {
         checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
         log(json.encode(checkLotteryRes!.toJson()));
@@ -111,6 +110,22 @@ class _WalletState extends State<Wallet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('เกิดข้อผิดพลาดในการตรวจสอบรางวัล: ${e.toString()}'),
+        ),
+      );
+    }
+  }
+
+  void checkPrize(int uid) async {
+    var checkLotteryResponse = await http
+        .get(Uri.parse('$url/CheckLottery/${context.read<AppData>().idx}'));
+    if (checkLotteryResponse.body.isNotEmpty) {
+      await saveLotteryCheckResults();
+      setState(() {
+        checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ตรวจสอบรางวัลเรียบร้อยแล้ว'),
         ),
       );
     }
@@ -240,7 +255,9 @@ class _WalletState extends State<Wallet> {
                                   ),
                                 ),
                                 ElevatedButton(
-                                  onPressed: checkLotteryStatus,
+                                  onPressed: () =>
+                                      // checkLotteryStatus
+                                      checkPrize(context.read<AppData>().idx),
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
@@ -287,7 +304,7 @@ class _WalletState extends State<Wallet> {
                                 final lottery =
                                     lotteryOwnerRes.lotterylist[index];
                                 final prizeInfo =
-                                    checkLotteryRes?.results.firstWhere(
+                                    checkLotteryRes.results.firstWhere(
                                   (result) => result.lid == lottery.lid,
                                   orElse: () => Result(
                                     lid: 0,
@@ -301,11 +318,11 @@ class _WalletState extends State<Wallet> {
                                 );
                                 return _buildPurchaseItem(
                                   lottery.number.toString(),
-                                  checkLotteryRes != null
-                                      ? prizeInfo?.status ?? 0
+                                  checkLotteryRes.results.isNotEmpty
+                                      ? prizeInfo.status ?? 0
                                       : 0,
                                   lottery.price.toString(),
-                                  prizeInfo?.prize ?? 0,
+                                  prizeInfo.prize ?? 0,
                                   lottery.lid,
                                 );
                               },
