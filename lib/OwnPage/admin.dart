@@ -22,9 +22,9 @@ class Admin extends StatefulWidget {
 class _AdminState extends State<Admin> {
   int _selectedIndex = 0;
   String url = "";
-  // late LotteriesIOwnAndOnStoreGetResponse lotteriesFound;
-  // late Future<void> loadData;
-
+  late LotteriesIOwnAndOnStoreGetResponse lotteriesFound;
+  late Future<void> loadData;
+  final PageController _pageController = PageController();
   final List<Widget> _pages = [];
 
   @override
@@ -56,19 +56,28 @@ class _AdminState extends State<Admin> {
               color: Colors.amber[600],
             ),
             onPressed: () {
-               setState(() {
+              setState(() {
                 context.read<AppData>().idx = 0;
                 log(context.read<AppData>().idx.toString());
               });
-              Get.offAll(()=>LoginPage());
+              Get.offAll(() => LoginPage());
             },
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: PageView(
+        controller: _pageController,
         children: _pages,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
+      // IndexedStack(
+      //   index: _selectedIndex,
+      //   children: _pages,
+      // ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF7A0000),
         selectedItemColor: Colors.yellow,
@@ -77,6 +86,7 @@ class _AdminState extends State<Admin> {
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
+            _pageController.jumpToPage(index);
           });
         },
         items: const [
@@ -97,23 +107,23 @@ class _AdminState extends State<Admin> {
     );
   }
 
-  // Future<void> getLotteryOnStore() async {
-  //   log(context.read<AppData>().idx.toString());
-  //   var config = await Configuration.getConfig();
-  //   url = config['apiEndpoint'];
-  //   var response = await http.get(Uri.parse('$url/getLotteryOnStore'));
-  //   setState(() {
-  //     lotteriesFound =
-  //         lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
-  //     log(json.encode(lotteriesFound.toJson()));
-  //   });
-  // }
+  Future<void> getLotteryOnStore() async {
+    log(context.read<AppData>().idx.toString());
+    var config = await Configuration.getConfig();
+    url = config['apiEndpoint'];
+    var response = await http.get(Uri.parse('$url/getLotteryOnStore'));
+    setState(() {
+      lotteriesFound =
+          lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+      log(json.encode(lotteriesFound.toJson()));
+    });
+  }
 
-  // getLotterieSoldOut() async {
-  //   var response = await http.get(Uri.parse('$url/getLotterySoldOwn'));
-  //   setState(() {
-  //     lotteriesFound =
-  //         lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
-  //   });
-  // }
+  getLotterieSoldOut() async {
+    var response = await http.get(Uri.parse('$url/getLotterySoldOwn'));
+    setState(() {
+      lotteriesFound =
+          lotteriesIOwnAndOnStoreGetResponseFromJson(response.body);
+    });
+  }
 }

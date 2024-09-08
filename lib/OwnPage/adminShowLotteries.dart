@@ -25,6 +25,7 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
     loadData = CheckLotteryEmpty();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +58,7 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                         children: [
                           const SizedBox(height: 16),
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               ElevatedButton(
                                 onPressed: () {
@@ -71,8 +71,7 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(20.0),
+                                    borderRadius: BorderRadius.circular(20.0),
                                     side: const BorderSide(
                                         color: Colors.white, width: 2),
                                   ),
@@ -85,7 +84,7 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                   setState(() {
+                                  setState(() {
                                     isStoreShow = false;
                                   });
                                 },
@@ -94,8 +93,7 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(20.0),
+                                    borderRadius: BorderRadius.circular(20.0),
                                     side: const BorderSide(
                                         color: Colors.white, width: 2),
                                   ),
@@ -112,14 +110,13 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                       ),
                       Expanded(
                         child: SingleChildScrollView(
-                          child: (isStoreShow)
-                              ? (lotteriesOnStoreFound.lotteries.isNotEmpty)
-                                  ? lotteriesOnStore()
-                                  : lotteriesOnStoreEmpty()
-                              : (lotteriesSoldOutFound.lotteries.isNotEmpty)
-                                  ? lotteriesSoldout()
-                                  : lotterySoldOutEmpty()
-                        ),
+                            child: (isStoreShow)
+                                ? (lotteriesOnStoreFound.lotteries.isNotEmpty)
+                                    ? lotteriesOnStore()
+                                    : lotteriesOnStoreEmpty()
+                                : (lotteriesSoldOutFound.lotteries.isNotEmpty)
+                                    ? lotteriesSoldout()
+                                    : lotterySoldOutEmpty()),
                       )
                     ]);
                   }
@@ -262,9 +259,11 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
   Widget lotteriesOnStoreEmpty() {
     return Column(
       children: [
-        SizedBox(height: 40,),
+        SizedBox(
+          height: 40,
+        ),
         Container(
-          width: MediaQuery.of(context).size.width*0.8,
+          width: MediaQuery.of(context).size.width * 0.8,
           decoration: BoxDecoration(
             color: const Color(0xFF7A0000),
             border: Border.all(color: Colors.yellow, width: 2),
@@ -278,7 +277,10 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                 Icons.money,
                 color: Colors.white,
                 size: 50,
-              ),SizedBox(height: 20,),
+              ),
+              SizedBox(
+                height: 20,
+              ),
               Text(
                 "ล็อตเตอรี่ของท่านหมดแล้ว",
                 style: TextStyle(
@@ -296,10 +298,12 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
   Widget lotterySoldOutEmpty() {
     return Column(
       children: [
-        SizedBox(height: 40,),
+        SizedBox(
+          height: 40,
+        ),
         Center(
           child: Container(
-            width: MediaQuery.of(context).size.width*0.8,
+            width: MediaQuery.of(context).size.width * 0.8,
             decoration: BoxDecoration(
               color: Colors.red[900],
               border: Border.all(color: Colors.yellow, width: 2),
@@ -314,7 +318,9 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
                   color: Colors.white,
                   size: 50,
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Text(
                   "ล็อตเตอรี่ของท่านยังไม่ถูกขายสักใบ",
                   style: TextStyle(
@@ -329,7 +335,8 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
       ],
     );
   }
-   Widget AllEmpty() {
+
+  Widget AllEmpty() {
     return Center(
       child: Container(
         decoration: BoxDecoration(
@@ -345,7 +352,9 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
               Icons.shopping_basket,
               color: Colors.white,
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text(
               "ล็อตเตอรี่ของท่านยังไม่ถูกขึ้นกระดานใหม่",
               style: TextStyle(
@@ -357,6 +366,5 @@ class _AdminShowLotterieState extends State<AdminShowLotterie> {
         ),
       ),
     );
-   }
-
+  }
 }

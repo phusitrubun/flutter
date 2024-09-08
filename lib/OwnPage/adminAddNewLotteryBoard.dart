@@ -24,7 +24,10 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
     super.initState();
     Configuration.getConfig().then((config) {
       url = config['apiEndpoint'];
-      allLotterryfound();
+      setState(() {
+        allLotterryfound();
+      });
+      
     });
   }
 
@@ -150,7 +153,6 @@ class _AddNewLotteryBoardState extends State<AddNewLotteryBoard> {
                                   'สามารถ สุ่ม lotterie ได้มากสุดที่ 300 ใบ',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ],
