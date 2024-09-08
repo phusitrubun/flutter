@@ -76,35 +76,41 @@ class _LottolistState extends State<Lottolist> {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: 40),
-              Image.asset(
-                'assets/images/banner1.png',
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'เลือกซื้อเลขที่ถูกใจ',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 227, 197, 2),
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          child: SingleChildScrollView(
+            // Added SingleChildScrollView
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 40),
+                Image.asset(
+                  'assets/images/banner1.png',
                 ),
-              ),
-              Text(
-                'เหลือ $soldCount / 100 ใบ',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+                const SizedBox(height: 10),
+                Text(
+                  'เลือกซื้อเลขที่ถูกใจ',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 227, 197, 2),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: lotteries.isEmpty
+                Text(
+                  'เหลือ $soldCount / 100 ใบ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                lotteries.isEmpty
                     ? Center(
                         child: Text('ไม่พบข้อมูลล็อตเตอรี่',
                             style: TextStyle(color: Colors.white)))
                     : ListView.builder(
+                        shrinkWrap:
+                            true, // Added to allow ListView inside SingleChildScrollView
+                        physics:
+                            const NeverScrollableScrollPhysics(), // Prevent internal scrolling
                         itemCount: lotteries.length,
                         itemBuilder: (context, index) {
                           return _buildLottoCard(
@@ -114,8 +120,8 @@ class _LottolistState extends State<Lottolist> {
                           );
                         },
                       ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -153,7 +159,7 @@ class _LottolistState extends State<Lottolist> {
           // กดซื้อได้เมื่อสถานะเป็น 0 และยังไม่มีลอตเตอรี่ที่ถูกรางวัล
           onTap: (status == 0 && !hasWinningLottery)
               ? () => _showConfirmationDialog(number, lottoType.split(' ')[1])
-              : null, 
+              : null,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             margin: const EdgeInsets.only(bottom: 10),

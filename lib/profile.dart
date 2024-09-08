@@ -37,8 +37,7 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Colors.red[900],
         elevation: 0,
         leading: IconButton(
-          icon:
-              Icon(Icons.arrow_back, color: Color.fromARGB(255, 255, 255, 255)),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -64,154 +63,156 @@ class _ProfileState extends State<Profile> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 40,
-                  ),
+            return SingleChildScrollView(
+              // Wrap with SingleChildScrollView
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 30.0),
+                child: Column(
+                  children: [
+                    SizedBox(height: 40),
 
-                  const SizedBox(height: 20),
-                  // First Card: User Details
-                  Container(
-                    width: double
-                        .infinity, // Ensures the container takes full width
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 130, 36, 36),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.yellow[700]!, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ชื่อผู้ใช้',
-                          style: TextStyle(
-                            color: Colors.yellow[700],
-                            fontSize: 14,
+                    const SizedBox(height: 20),
+                    // First Card: User Details
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 130, 36, 36),
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            Border.all(color: Colors.yellow[700]!, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          profileRes.username,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Text(
-                          'อีเมล',
-                          style: TextStyle(
-                            color: Colors.yellow[700],
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          profileRes.email,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Second Card: Balance
-                  Container(
-                    width: double
-                        .infinity, // Ensures the container takes full width
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 130, 36, 36),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.yellow[700]!, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ยอดเงินคงเหลือ',
-                          style: TextStyle(
-                            color: Colors.yellow[700],
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          profileRes.wallet.toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Logout Button with Gradient
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFB81A1B),
-                          Color(0xFFE3BB66),
-                          Color(0xFFB81A1B),
                         ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ชื่อผู้ใช้',
+                            style: TextStyle(
+                              color: Colors.yellow[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            profileRes.username,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            'อีเมล',
+                            style: TextStyle(
+                              color: Colors.yellow[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            profileRes.email,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<AppData>().idx = 0;
-                        log(context.read<AppData>().idx.toString());
-
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (Route<dynamic> route) => false,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 40),
+                    const SizedBox(height: 20),
+                    // Second Card: Balance
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 130, 36, 36),
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            Border.all(color: Colors.yellow[700]!, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        'ออกจากระบบ',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ยอดเงินคงเหลือ',
+                            style: TextStyle(
+                              color: Colors.yellow[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            profileRes.wallet.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Logout Button with Gradient
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFB81A1B),
+                            Color(0xFFE3BB66),
+                            Color(0xFFB81A1B),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.read<AppData>().idx = 0;
+                          log(context.read<AppData>().idx.toString());
+
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 40),
+                        ),
+                        child: Text(
+                          'ออกจากระบบ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
