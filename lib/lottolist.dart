@@ -62,65 +62,70 @@ class _LottolistState extends State<Lottolist> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFF5B1E1E),
-          image: DecorationImage(
-            image: AssetImage('assets/images/wallpaper_lotto3.png'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.red.withOpacity(0.6),
-              BlendMode.darken,
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0xFF5B1E1E),
+            image: DecorationImage(
+              image: AssetImage('assets/images/wallpaper_lotto3.png'),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Colors.red.withOpacity(0.6),
+                BlendMode.darken,
+              ),
             ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
           child: SingleChildScrollView(
-            // Added SingleChildScrollView
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 40),
-                Image.asset(
-                  'assets/images/banner1.png',
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'เลือกซื้อเลขที่ถูกใจ',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 227, 197, 2),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+            // Wrap the entire content in a SingleChildScrollView
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/banner1.png'),
+                  const SizedBox(height: 10),
+                  Text(
+                    'เลือกซื้อเลขที่ถูกใจ',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 227, 197, 2),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  'เหลือ $soldCount / 100 ใบ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                  Text(
+                    'เหลือ $soldCount / 100 ใบ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                lotteries.isEmpty
-                    ? Center(
-                        child: Text('ไม่พบข้อมูลล็อตเตอรี่',
-                            style: TextStyle(color: Colors.white)))
-                    : ListView.builder(
-                        shrinkWrap:
-                            true, // Added to allow ListView inside SingleChildScrollView
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Prevent internal scrolling
-                        itemCount: lotteries.length,
-                        itemBuilder: (context, index) {
-                          return _buildLottoCard(
-                            lotteries[index].number.toString(),
-                            'lotto ${lotteries[index].lid}',
-                            lotteries[index].status,
-                          );
-                        },
-                      ),
-              ],
+                  const SizedBox(height: 10),
+                  // Lottery list section
+                  Container(
+                    height: MediaQuery.of(context).size.height *
+                        0.6, // Adjust height as necessary
+                    child: lotteries.isEmpty
+                        ? Center(
+                            child: Text(
+                              'ไม่พบข้อมูลล็อตเตอรี่',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: lotteries.length,
+                            itemBuilder: (context, index) {
+                              final lottery = lotteries[index];
+                              return _buildLottoCard(
+                                lottery.number.toString(),
+                                'lotto ${lottery.lid}',
+                                lottery.status,
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
