@@ -10,6 +10,9 @@ import 'package:flutter_application_1/config/config.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// New import for AwardRankPrizePostResponse
+import 'package:flutter_application_1/models/response/awardRankPrizePostResponse.dart';
+
 class Wallet extends StatefulWidget {
   final int idx;
   Wallet({Key? key, required this.idx}) : super(key: key);
@@ -24,6 +27,7 @@ class _WalletState extends State<Wallet> {
   late GetLotteryOwner lotteryOwnerRes;
   late CheckLottery checkLotteryRes;
   late Future<void> loadData;
+  bool canCheckPrize = false;
 
   @override
   void initState() {
@@ -54,6 +58,7 @@ class _WalletState extends State<Wallet> {
     isDataLoaded = true;
   }
 
+  // Load saved lottery results from SharedPreferences
   Future<void> loadSavedLotteryCheckResults() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedResults = prefs.getString('checkLotteryRes_${widget.idx}');
@@ -64,39 +69,27 @@ class _WalletState extends State<Wallet> {
     }
   }
 
+  // Save the results to SharedPreferences
   Future<void> saveLotteryCheckResults() async {
-    if (checkLotteryRes != null) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('checkLotteryRes_${widget.idx}',
-          json.encode(checkLotteryRes!.toJson()));
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'checkLotteryRes_${widget.idx}', json.encode(checkLotteryRes.toJson()));
   }
 
-  Future<void> checkLotteryStatus() async {
-    bool canCheck = lotteryOwnerRes.lotterylist.any(
-      (lottery) => lottery.status != 0 && lottery.status != 1,
-    );
+  // Function to check lottery prize
+  Future<void> checkPrize(int uid) async {
+    var checkLotteryResponse = await http
+        .get(Uri.parse('$url/CheckLottery/${context.read<AppData>().idx}'));
 
-    if (!canCheck) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ไม่สามารถเช็ครางวัลได้ในขณะนี้ เพราะยังไม่ออกรางวัล'),
-        ),
-      );
-      return;
-    }
+    if (checkLotteryResponse.statusCode == 200) {
+      var responseBody = json.decode(checkLotteryResponse.body);
 
-    try {
-      log(context.read<AppData>().idx.toString());
-      var checkLotteryResponse = await http
-          .get(Uri.parse('$url/CheckLottery/${context.read<AppData>().idx}'));
-      if (checkLotteryResponse.statusCode == 200) {
-        checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
-        log(json.encode(checkLotteryRes!.toJson()));
-
-        await saveLotteryCheckResults();
-
-        setState(() {});
+      if (responseBody['results'] != null &&
+          responseBody['results'].isNotEmpty) {
+        setState(() {
+          checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
+        });
+        await saveLotteryCheckResults(); // Save the results
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -104,28 +97,18 @@ class _WalletState extends State<Wallet> {
           ),
         );
       } else {
-        throw Exception('Failed to check lottery');
+        // Handle empty results
+        var awardResponse = AwardRankPrizePostResponse.fromJson(responseBody);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(awardResponse.message),
+          ),
+        );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('เกิดข้อผิดพลาดในการตรวจสอบรางวัล: ${e.toString()}'),
-        ),
-      );
-    }
-  }
-
-  void checkPrize(int uid) async {
-    var checkLotteryResponse = await http
-        .get(Uri.parse('$url/CheckLottery/${context.read<AppData>().idx}'));
-    if (checkLotteryResponse.body.isNotEmpty) {
-      await saveLotteryCheckResults();
-      setState(() {
-        checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
-      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('ตรวจสอบรางวัลเรียบร้อยแล้ว'),
+          content: Text('เกิดข้อผิดพลาดในการตรวจสอบรางวัล'),
         ),
       );
     }
@@ -154,81 +137,83 @@ class _WalletState extends State<Wallet> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const RadialGradient(
-                        colors: [
-                          Color(0xFF7D6738),
-                          Color(0xFFA49869),
-                          Color(0xFFE6D9AC),
-                          Color.fromARGB(255, 234, 233, 235),
-                        ],
-                        center: Alignment.centerLeft,
-                        radius: 2.5,
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 30.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const RadialGradient(
+                          colors: [
+                            Color(0xFF7D6738),
+                            Color(0xFFA49869),
+                            Color(0xFFE6D9AC),
+                            Color.fromARGB(255, 234, 233, 235),
+                          ],
+                          center: Alignment.centerLeft,
+                          radius: 2.5,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'ยอดเงินทั้งหมด',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 88, 59, 39),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${profileRes.wallet} ฿',
+                                style: const TextStyle(
+                                  color: Color(0xFF3D1B0F),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
+                    const SizedBox(height: 20),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'ยอดเงินทั้งหมด',
+                          'รายการที่ซื้อ',
                           style: TextStyle(
-                            color: Color.fromARGB(255, 88, 59, 39),
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${profileRes.wallet} ฿',
-                              style: const TextStyle(
-                                color: Color(0xFF3D1B0F),
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'จำนวน: ${lotteryOwnerRes.lotterylist.length} ใบ',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'รายการที่ซื้อ',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'จำนวน: ${lotteryOwnerRes.lotterylist.length} ใบ',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Container(
+                    const SizedBox(height: 10),
+                    Container(
                       decoration: BoxDecoration(
                         color: Colors.red[800],
                         borderRadius: BorderRadius.circular(10),
@@ -256,7 +241,6 @@ class _WalletState extends State<Wallet> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () =>
-                                      // checkLotteryStatus
                                       checkPrize(context.read<AppData>().idx),
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero,
@@ -296,43 +280,45 @@ class _WalletState extends State<Wallet> {
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(10),
-                              itemCount: lotteryOwnerRes.lotterylist.length,
-                              itemBuilder: (context, index) {
-                                final lottery =
-                                    lotteryOwnerRes.lotterylist[index];
-                                final prizeInfo =
-                                    checkLotteryRes.results.firstWhere(
-                                  (result) => result.lid == lottery.lid,
-                                  orElse: () => Result(
-                                    lid: 0,
-                                    number: 0,
-                                    status: 0,
-                                    textStatus: 'ไม่พบข้อมูล',
-                                    uid: 0,
-                                    prize: 0,
-                                    rank: 0,
-                                  ),
-                                );
-                                return _buildPurchaseItem(
-                                  lottery.number.toString(),
-                                  checkLotteryRes.results.isNotEmpty
-                                      ? prizeInfo.status ?? 0
-                                      : 0,
-                                  lottery.price.toString(),
-                                  prizeInfo.prize ?? 0,
-                                  lottery.lid,
-                                );
-                              },
-                            ),
+                          // Your ListView.builder should remain inside Expanded
+                          ListView.builder(
+                            shrinkWrap: true, // Add this
+                            physics:
+                                const NeverScrollableScrollPhysics(), // Add this
+                            padding: const EdgeInsets.all(10),
+                            itemCount: lotteryOwnerRes.lotterylist.length,
+                            itemBuilder: (context, index) {
+                              final lottery =
+                                  lotteryOwnerRes.lotterylist[index];
+                              final prizeInfo =
+                                  checkLotteryRes.results.firstWhere(
+                                (result) => result.lid == lottery.lid,
+                                orElse: () => Result(
+                                  lid: 0,
+                                  number: 0,
+                                  status: 0,
+                                  textStatus: 'ไม่พบข้อมูล',
+                                  uid: 0,
+                                  prize: 0,
+                                  rank: 0,
+                                ),
+                              );
+                              return _buildPurchaseItem(
+                                lottery.number.toString(),
+                                checkLotteryRes.results.isNotEmpty
+                                    ? prizeInfo.status ?? 0
+                                    : 0,
+                                lottery.price.toString(),
+                                prizeInfo.prize ?? 0,
+                                lottery.lid,
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -456,9 +442,20 @@ class _WalletState extends State<Wallet> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF5B1E1E),
-              borderRadius: BorderRadius.circular(12),
-            ),
+                color: const Color(0xFF5B1E1E),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amber.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+                border: Border.all(color: Colors.amber, width: 2),
+                image: const DecorationImage(
+                    image: AssetImage('assets/images/bg_dialog.png'),
+                    fit: BoxFit.contain)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
