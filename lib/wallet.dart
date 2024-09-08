@@ -148,7 +148,7 @@ class _WalletState extends State<Wallet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
+                        // const SizedBox(height: 20),
                         // Wallet balance container
                         Container(
                           padding: const EdgeInsets.all(16),
