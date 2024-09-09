@@ -39,71 +39,82 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/wallpaper_lotto3.png'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.red.withOpacity(0.3),
-              BlendMode.darken,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 768;
+
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/wallpaper_lotto3.png'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.red.withOpacity(0.3),
+                  BlendMode.darken,
+                ),
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.red[900]!.withOpacity(0.8),
+                  Colors.red[800]!.withOpacity(0.8)
+                ],
+              ),
             ),
-          ),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.red[900]!.withOpacity(0.8),
-              Colors.red[800]!.withOpacity(0.8)
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              // Header with logo and user greeting
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  // Header with logo and user greeting
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMobile ? 16.0 : 32.0,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Image.asset(
+                    'assets/images/banner1.png',
+                    width: isMobile ? 350 : 500,
+                  ),
+
+                  Expanded(
+                    child: futurePrizeAward == null
+                        ? Center(child: CircularProgressIndicator())
+                        : FutureBuilder<GetPrizeAward>(
+                            future: futurePrizeAward,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else if (snapshot.hasData) {
+                                return _buildPrizeList(
+                                    snapshot.data!, isMobile);
+                              } else {
+                                return Center(child: Text('No data available'));
+                              }
+                            },
+                          ),
+                  )
+                ],
               ),
-              const SizedBox(height: 10),
-              Image.asset(
-                'assets/images/banner1.png',
-              ),
-              // const SizedBox(height: 10),
-              Expanded(
-                child: futurePrizeAward == null
-                    ? Center(child: CircularProgressIndicator())
-                    : FutureBuilder<GetPrizeAward>(
-                        future: futurePrizeAward,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${snapshot.error}'));
-                          } else if (snapshot.hasData) {
-                            return _buildPrizeList(snapshot.data!);
-                          } else {
-                            return Center(child: Text('No data available'));
-                          }
-                        },
-                      ),
-              )
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildPrizeList(GetPrizeAward prizeAward) {
+  Widget _buildPrizeList(GetPrizeAward prizeAward, bool isMobile) {
     List<DtoList> sortedList = List.from(prizeAward.dtoList)
       ..sort((a, b) => a.rank.compareTo(b.rank));
 
     return ListView(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(isMobile ? 8.0 : 12.0),
       children: [
         _buildMainPrizeCard(
           'รางวัลที่ 1',
@@ -111,6 +122,7 @@ class _MenuPageState extends State<MenuPage> {
           sortedList.isNotEmpty
               ? 'lotto6 ${sortedList[0].lid} Jackpot ${sortedList[0].prize} ฿'
               : '',
+          isMobile,
         ),
         const SizedBox(height: 8),
         Row(
@@ -124,6 +136,7 @@ class _MenuPageState extends State<MenuPage> {
                 sortedList.length > 1
                     ? 'lotto5 ${sortedList[1].lid} win ${sortedList[1].prize} ฿'
                     : '',
+                isMobile,
               ),
             ),
             const SizedBox(width: 8),
@@ -136,6 +149,7 @@ class _MenuPageState extends State<MenuPage> {
                 sortedList.length > 2
                     ? 'lotto6 ${sortedList[2].lid} win ${sortedList[2].prize} ฿'
                     : '',
+                isMobile,
               ),
             ),
           ],
@@ -147,6 +161,7 @@ class _MenuPageState extends State<MenuPage> {
           sortedList.length > 3
               ? 'lotto6 ${sortedList[3].lid} win ${sortedList[3].prize} ฿'
               : '',
+          isMobile,
         ),
         const SizedBox(height: 8),
         _buildSecondaryPrizeCard(
@@ -155,69 +170,78 @@ class _MenuPageState extends State<MenuPage> {
           sortedList.length > 4
               ? 'lotto6 ${sortedList[4].lid} win ${sortedList[4].prize} ฿'
               : '',
+          isMobile,
         ),
       ],
     );
   }
 
-  Widget _buildMainPrizeCard(String title, String number, String description) {
+  Widget _buildMainPrizeCard(
+      String title, String number, String description, bool isMobile) {
     return Stack(
       children: [
         Positioned(
-          top: -15,
+          top: -20, // เพิ่มความสูงของตำแหน่ง
           left: 0,
           right: 0,
           child: Image.asset(
             'assets/images/g1.png',
             fit: BoxFit.cover,
+            width: isMobile ? 250 : 350, // ขยายขนาดรูปภาพให้ใหญ่ขึ้น
           ),
         ),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(isMobile ? 20.0 : 30.0), // เพิ่ม padding
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.red[900]!.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.yellow[700]!, width: 2),
+              color: Colors.red[900]!
+                  .withOpacity(0.8), // เพิ่มความทึบของสีพื้นหลัง
+              borderRadius: BorderRadius.circular(12), // เพิ่มความโค้งมน
+              border: Border.all(
+                  color: Colors.yellow[700]!, width: 3), // เพิ่มขนาดเส้นขอบ
             ),
             child: Column(
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: EdgeInsets.symmetric(
+                      vertical: isMobile ? 8 : 12), // เพิ่มขนาดของ padding
                   decoration: BoxDecoration(
-                    color: Colors.red[700]!.withOpacity(0.7),
+                    color: Colors.red[700]!.withOpacity(0.8),
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(8)),
+                        const BorderRadius.vertical(top: Radius.circular(12)),
                   ),
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: isMobile ? 16 : 20, // เพิ่มขนาดตัวอักษร
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: EdgeInsets.all(
+                      isMobile ? 10.0 : 12.0), // เพิ่ม padding ด้านใน
                   child: Column(
                     children: [
                       Text(
                         number,
                         style: TextStyle(
                           color: Colors.yellow[300],
-                          fontSize: 28,
+                          fontSize: isMobile
+                              ? 28
+                              : 32, // เพิ่มขนาดตัวอักษรของหมายเลขรางวัล
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         description,
                         style: TextStyle(
                           color: Colors.yellow[100],
-                          fontSize: 10,
+                          fontSize: isMobile ? 10 : 12, // เพิ่มขนาดของคำอธิบาย
                         ),
                       ),
                     ],
@@ -228,12 +252,13 @@ class _MenuPageState extends State<MenuPage> {
           ),
         ),
         Positioned(
-          top: 60,
+          top: 80, // ปรับตำแหน่งของรูปภาพให้สอดคล้องกับการ์ด
           left: 0,
           right: 0,
           child: Image.asset(
             'assets/images/g2.png',
             fit: BoxFit.contain,
+            width: isMobile ? 250 : 350, // เพิ่มขนาดรูปภาพด้านล่าง
           ),
         ),
       ],
@@ -241,51 +266,53 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildSecondaryPrizeCard(
-      String title, String number, String description) {
+      String title, String number, String description, bool isMobile) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.red[800]!.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.yellow[700]!, width: 2),
+        color: Colors.red[800]!.withOpacity(0.9), // เพิ่มความเข้มของสีพื้นหลัง
+        borderRadius: BorderRadius.circular(10), // เพิ่มความโค้งมนของมุม
+        border: Border.all(
+            color: Colors.yellow[700]!, width: 3), // เพิ่มขนาดเส้นขอบ
       ),
       child: Column(
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 8 : 12), // เพิ่ม padding
             decoration: BoxDecoration(
-              color: Colors.red[700]!.withOpacity(0.8),
+              color: Colors.red[700]!.withOpacity(0.9),
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(8)),
+                  const BorderRadius.vertical(top: Radius.circular(10)),
             ),
             child: Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color.fromARGB(255, 235, 190, 8),
-                fontSize: 12,
+                fontSize: isMobile ? 12 : 16, // เพิ่มขนาดตัวอักษร
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(isMobile ? 8.0 : 12.0), // เพิ่ม padding
             child: Column(
               children: [
                 Text(
                   number,
                   style: TextStyle(
                     color: Color.fromARGB(255, 255, 255, 255),
-                    fontSize: 20,
+                    fontSize: isMobile ? 20 : 24, // เพิ่มขนาดตัวอักษร
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   description,
                   style: TextStyle(
                     color: Color.fromARGB(255, 255, 229, 59),
-                    fontSize: 8,
+                    fontSize: isMobile ? 8 : 10, // เพิ่มขนาดคำอธิบาย
                   ),
                 ),
               ],

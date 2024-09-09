@@ -36,9 +36,12 @@ class _WalletState extends State<Wallet> {
   }
 
   bool isDataLoaded = false;
+
   Future<void> loadDataAsync() async {
+    // Check if data has already been loaded
     if (isDataLoaded) return;
 
+    // Your logic for loading data goes here
     var config = await Configuration.getConfig();
     url = config['apiEndpoint'];
 
@@ -55,18 +58,21 @@ class _WalletState extends State<Wallet> {
     log(json.encode(profileRes.toJson()));
     log(json.encode(lotteryOwnerRes.toJson()));
 
+    // After loading data, set isDataLoaded to true
     isDataLoaded = true;
   }
 
-  // Load saved lottery results from SharedPreferences
   Future<void> loadSavedLotteryCheckResults() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedResults = prefs.getString('checkLotteryRes_${widget.idx}');
-    if (savedResults != null) {
-      setState(() {
+    setState(() {
+      if (savedResults != null) {
         checkLotteryRes = CheckLottery.fromJson(json.decode(savedResults));
-      });
-    }
+      } else {
+        checkLotteryRes =
+            CheckLottery(results: [], totalCount: 0); // เพิ่ม totalCount
+      }
+    });
   }
 
   // Save the results to SharedPreferences
@@ -83,14 +89,14 @@ class _WalletState extends State<Wallet> {
 
     if (checkLotteryResponse.statusCode == 200) {
       var responseBody = json.decode(checkLotteryResponse.body);
-
       if (responseBody['results'] != null &&
           responseBody['results'].isNotEmpty) {
         setState(() {
           checkLotteryRes = checkLotteryFromJson(checkLotteryResponse.body);
+          checkLotteryRes.totalCount =
+              checkLotteryRes.results.length; // อัปเดต totalCount
         });
-        await saveLotteryCheckResults(); // Save the results
-
+        await saveLotteryCheckResults();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('ตรวจสอบรางวัลเรียบร้อยแล้ว'),
@@ -117,230 +123,238 @@ class _WalletState extends State<Wallet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF5B1E1E),
-          image: DecorationImage(
-            image: const AssetImage('assets/images/wallpaper_lotto3.png'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.red.withOpacity(0.6),
-              BlendMode.darken,
-            ),
-          ),
-        ),
-        child: FutureBuilder(
-          future: loadData,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 768;
 
-            return CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 30.0,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // const SizedBox(height: 20),
-                        // Wallet balance container
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const RadialGradient(
-                              colors: [
-                                Color(0xFF7D6738),
-                                Color(0xFFA49869),
-                                Color(0xFFE6D9AC),
-                                Color.fromARGB(255, 234, 233, 235),
-                              ],
-                              center: Alignment.centerLeft,
-                              radius: 2.5,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'ยอดเงินทั้งหมด',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 88, 59, 39),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+          return Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFF5B1E1E),
+              image: DecorationImage(
+                image: const AssetImage('assets/images/wallpaper_lotto3.png'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.red.withOpacity(0.6),
+                  BlendMode.darken,
+                ),
+              ),
+            ),
+            child: FutureBuilder(
+              future: loadData,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 16.0 : 32.0,
+                          vertical: 30.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Wallet balance container
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const RadialGradient(
+                                  colors: [
+                                    Color(0xFF7D6738),
+                                    Color(0xFFA49869),
+                                    Color(0xFFE6D9AC),
+                                    Color.fromARGB(255, 234, 233, 235),
+                                  ],
+                                  center: Alignment.centerLeft,
+                                  radius: 2.5,
                                 ),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    '${profileRes.wallet} ฿',
-                                    style: const TextStyle(
-                                      color: Color(0xFF3D1B0F),
-                                      fontSize: 24,
+                                    'ยอดเงินทั้งหมด',
+                                    style: TextStyle(
+                                      color:
+                                          const Color.fromARGB(255, 88, 59, 39),
+                                      fontSize: isMobile ? 16.0 : 18.0,
                                       fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '${profileRes.wallet} ฿',
+                                        style: TextStyle(
+                                          color: const Color(0xFF3D1B0F),
+                                          fontSize: isMobile ? 20.0 : 24.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 25),
+                            // Purchased items header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'รายการที่ซื้อ',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isMobile ? 16.0 : 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'จำนวน: ${lotteryOwnerRes.lotterylist.length} ใบ',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isMobile ? 14.0 : 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red[800],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          children: [
+                            // Purchased items container header
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10)),
+                                color: Color(0xFFEDE6D5),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'รายการที่ซื้อ',
+                                    style: TextStyle(
+                                      color: const Color(0xFF7D5538),
+                                      fontSize: isMobile ? 16.0 : 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        checkPrize(context.read<AppData>().idx),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                    ),
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFE3BB66),
+                                            Color(0xFFB81A1B),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12, horizontal: 25),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'เช็ครางวัล',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: isMobile ? 14.0 : 16.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        // Purchased items header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'รายการที่ซื้อ',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
                             ),
-                            Text(
-                              'จำนวน: ${lotteryOwnerRes.lotterylist.length} ใบ',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            SizedBox(
+                              height: 540,
+                              child: lotteryOwnerRes.lotterylist.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        'ไม่มีรายการที่ซื้อ',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: isMobile ? 14.0 : 16.0,
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      padding: const EdgeInsets.all(10),
+                                      itemCount:
+                                          lotteryOwnerRes.lotterylist.length,
+                                      itemBuilder: (context, index) {
+                                        final lottery =
+                                            lotteryOwnerRes.lotterylist[index];
+                                        final prizeInfo =
+                                            checkLotteryRes.results.firstWhere(
+                                          (result) => result.lid == lottery.lid,
+                                          orElse: () => Result(
+                                            lid: 0,
+                                            number: 0,
+                                            status: 0,
+                                            textStatus: 'ไม่พบข้อมูล',
+                                            uid: 0,
+                                            prize: 0,
+                                            rank: 0,
+                                          ),
+                                        );
+                                        return _buildPurchaseItem(
+                                          lottery.number.toString(),
+                                          checkLotteryRes.results.isNotEmpty
+                                              ? prizeInfo.status ?? 0
+                                              : 0,
+                                          lottery.price.toString(),
+                                          prizeInfo.prize ?? 0,
+                                          lottery.lid,
+                                        );
+                                      },
+                                    ),
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red[800],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      children: [
-                        // Purchased items container header
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10)),
-                            color: Color(0xFFEDE6D5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'รายการที่ซื้อ',
-                                style: TextStyle(
-                                  color: Color(0xFF7D5538),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () =>
-                                    checkPrize(context.read<AppData>().idx),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFE3BB66),
-                                        Color(0xFFB81A1B),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 25),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'เช็ครางวัล',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(
-                          height: 560,
-                          child: lotteryOwnerRes.lotterylist.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'ไม่มีรายการที่ซื้อ',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.all(10),
-                                  itemCount: lotteryOwnerRes.lotterylist.length,
-                                  itemBuilder: (context, index) {
-                                    final lottery =
-                                        lotteryOwnerRes.lotterylist[index];
-                                    final prizeInfo =
-                                        checkLotteryRes.results.firstWhere(
-                                      (result) => result.lid == lottery.lid,
-                                      orElse: () => Result(
-                                        lid: 0,
-                                        number: 0,
-                                        status: 0,
-                                        textStatus: 'ไม่พบข้อมูล',
-                                        uid: 0,
-                                        prize: 0,
-                                        rank: 0,
-                                      ),
-                                    );
-                                    return _buildPurchaseItem(
-                                      lottery.number.toString(),
-                                      checkLotteryRes.results.isNotEmpty
-                                          ? prizeInfo.status ?? 0
-                                          : 0,
-                                      lottery.price.toString(),
-                                      prizeInfo.prize ?? 0,
-                                      lottery.lid,
-                                    );
-                                  },
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+                  ],
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -570,10 +584,10 @@ class _WalletState extends State<Wallet> {
 
         // Update the checkLotteryRes to reflect the redeemed prize
         if (checkLotteryRes != null) {
-          final resultIndex = checkLotteryRes!.results
-              .indexWhere((result) => result.lid == lid);
+          final resultIndex =
+              checkLotteryRes.results.indexWhere((result) => result.lid == lid);
           if (resultIndex != -1) {
-            checkLotteryRes!.results[resultIndex].status = 4;
+            checkLotteryRes.results[resultIndex].status = 4;
           }
         }
       });
