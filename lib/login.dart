@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: TextField(
                                 controller: _usernameController,
                                 decoration: const InputDecoration(
-                                  hintText: 'ชื่อผู้ใช้',
+                                  hintText: 'อีเมลล์',
                                   border: OutlineInputBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8.0)),

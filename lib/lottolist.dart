@@ -61,6 +61,10 @@ class _LottolistState extends State<Lottolist> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size for responsive adjustments
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -78,18 +82,22 @@ class _LottolistState extends State<Lottolist> {
           child: SingleChildScrollView(
             // Wrap the entire content in a SingleChildScrollView
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.04,
+                  vertical: screenHeight * 0.02),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/banner1.png'),
+                  Image.asset(
+                    'assets/images/banner1.png',
+                    width: screenWidth * 0.8, // Responsive image width
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     'เลือกซื้อเลขที่ถูกใจ',
                     style: TextStyle(
                       color: Color.fromARGB(255, 227, 197, 2),
-                      fontSize: 24,
+                      fontSize: screenWidth * 0.06, // Responsive font size
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -97,14 +105,13 @@ class _LottolistState extends State<Lottolist> {
                     'เหลือ $soldCount / 100 ใบ',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: screenWidth * 0.04, // Responsive font size
                     ),
                   ),
                   const SizedBox(height: 10),
                   // Lottery list section
-                  Container(
-                    height: MediaQuery.of(context).size.height *
-                        0.6, // Adjust height as necessary
+                  SizedBox(
+                    height: screenHeight * 0.6, // Responsive container height
                     child: lotteries.isEmpty
                         ? Center(
                             child: Text(
@@ -120,6 +127,7 @@ class _LottolistState extends State<Lottolist> {
                                 lottery.number.toString(),
                                 'lotto ${lottery.lid}',
                                 lottery.status,
+                                screenWidth, // Pass screen width for responsiveness
                               );
                             },
                           ),
@@ -133,7 +141,8 @@ class _LottolistState extends State<Lottolist> {
     );
   }
 
-  Widget _buildLottoCard(String number, String lottoType, int status) {
+  Widget _buildLottoCard(
+      String number, String lottoType, int status, double screenWidth) {
     Color statusColor;
     String statusText;
 
@@ -166,8 +175,11 @@ class _LottolistState extends State<Lottolist> {
               ? () => _showConfirmationDialog(number, lottoType.split(' ')[1])
               : null,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            margin: const EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.symmetric(
+              vertical: screenWidth * 0.04,
+              horizontal: screenWidth * 0.05,
+            ),
+            margin: EdgeInsets.only(bottom: screenWidth * 0.03),
             decoration: BoxDecoration(
               gradient: const RadialGradient(
                 colors: [
@@ -187,7 +199,7 @@ class _LottolistState extends State<Lottolist> {
                   lottoType,
                   style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 16,
+                    fontSize: screenWidth * 0.04, // Responsive font size
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -195,7 +207,7 @@ class _LottolistState extends State<Lottolist> {
                   number,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 24,
+                    fontSize: screenWidth * 0.06, // Responsive font size
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -208,7 +220,8 @@ class _LottolistState extends State<Lottolist> {
             top: -5,
             right: -5,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.03, vertical: screenWidth * 0.01),
               decoration: BoxDecoration(
                 color: statusColor,
                 borderRadius: BorderRadius.circular(10),
@@ -227,6 +240,8 @@ class _LottolistState extends State<Lottolist> {
   }
 
   Future<void> _showConfirmationDialog(String number, String lid) async {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -237,7 +252,7 @@ class _LottolistState extends State<Lottolist> {
               style: TextStyle(
                 color: Color.fromARGB(255, 227, 197, 2),
                 fontWeight: FontWeight.bold,
-                fontSize: 24,
+                fontSize: screenWidth * 0.06, // Responsive font size
               ),
             ),
           ),
@@ -247,16 +262,16 @@ class _LottolistState extends State<Lottolist> {
               Text(
                 number,
                 style: TextStyle(
-                  fontSize: 36,
+                  fontSize: screenWidth * 0.08, // Responsive font size
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: screenWidth * 0.03),
               Text(
                 '100 บาท',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06, // Responsive font size
                   color: Colors.white,
                 ),
               ),
@@ -275,12 +290,14 @@ class _LottolistState extends State<Lottolist> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.1,
+                      vertical: screenWidth * 0.03),
                 ),
                 child: Text(
                   'ยืนยัน',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: screenWidth * 0.05, // Responsive font size
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -300,7 +317,7 @@ class _LottolistState extends State<Lottolist> {
   Future<void> _buyLottery(String lid) async {
     final appData = Provider.of<AppData>(context, listen: false);
     final uid = appData.idx; // Fetching the user ID from AppData
-    log('Attempting to buy lottery. User ID: $uid, Lottery ID: $lid'); // New log statement
+    log('Attempting to buy lottery. User ID: $uid, Lottery ID: $lid');
     try {
       final response = await http.post(
         Uri.parse('$url/BuyLotterys'),
@@ -312,28 +329,28 @@ class _LottolistState extends State<Lottolist> {
       );
 
       if (response.statusCode == 200) {
-        log('Lottery purchase successful. User ID: $uid, Lottery ID: $lid'); // New log statement
+        log('Lottery purchase successful. User ID: $uid, Lottery ID: $lid');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ซื้อล็อตเตอรี่สำเร็จ')),
         );
         // Refresh the lottery list
         getAllLottery();
       } else if (response.statusCode == 400) {
-        log('Invalid data for lottery purchase. User ID: $uid, Lottery ID: $lid'); // New log statement
+        log('Invalid data for lottery purchase. User ID: $uid, Lottery ID: $lid');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ข้อมูลไม่ถูกต้อง')),
         );
       } else if (response.statusCode == 404) {
-        log('Lottery not found. User ID: $uid, Lottery ID: $lid'); // New log statement
+        log('Lottery not found. User ID: $uid, Lottery ID: $lid');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('ไม่พบล็อตเตอรี่')),
         );
       } else {
-        log('Failed to purchase lottery: ${response.statusCode}'); // New log statement
+        log('Failed to purchase lottery: ${response.statusCode}');
         throw Exception('Failed to purchase lottery');
       }
     } catch (e) {
-      log('An error occurred while purchasing lottery: $e'); // New log statement
+      log('An error occurred while purchasing lottery: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('เกิดข้อผิดพลาด')),
       );
